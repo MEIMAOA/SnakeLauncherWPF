@@ -1,0 +1,906 @@
+{
+  "packageGovernance": {
+    "totalDistinctPackages": 10,
+    "totalVersionDriftInstances": 0,
+    "targetFramework": "net10.0",
+    "packages": [
+      {
+        "name": "Microsoft.Bcl.AsyncInterfaces",
+        "totalProjectCount": 1,
+        "distinctVersionCount": 1,
+        "recommendedVersion": "10.0.12",
+        "isCompatible": true,
+        "description": "\u5EFA\u8BAE\u5347\u7EA7 NuGet \u5305",
+        "versions": [
+          {
+            "version": "10.0.8",
+            "projects": [
+              "SnakeLauncherWPF"
+            ],
+            "isRecommended": false
+          }
+        ],
+        "upgrade": {
+          "newVersion": "10.0.12"
+        }
+      },
+      {
+        "name": "System.Buffers",
+        "totalProjectCount": 1,
+        "distinctVersionCount": 1,
+        "recommendedVersion": "4.6.1",
+        "isCompatible": true,
+        "description": "\u6846\u67B6\u5F15\u7528\u4E2D\u5305\u542B NuGet \u5305\u529F\u80FD",
+        "versions": [
+          {
+            "version": "4.6.1",
+            "projects": [
+              "SnakeLauncherWPF"
+            ],
+            "isRecommended": true
+          }
+        ]
+      },
+      {
+        "name": "System.IO.Pipelines",
+        "totalProjectCount": 1,
+        "distinctVersionCount": 1,
+        "recommendedVersion": "10.0.12",
+        "isCompatible": true,
+        "description": "\u5EFA\u8BAE\u5347\u7EA7 NuGet \u5305",
+        "versions": [
+          {
+            "version": "10.0.8",
+            "projects": [
+              "SnakeLauncherWPF"
+            ],
+            "isRecommended": false
+          }
+        ],
+        "upgrade": {
+          "newVersion": "10.0.12"
+        }
+      },
+      {
+        "name": "System.Memory",
+        "totalProjectCount": 1,
+        "distinctVersionCount": 1,
+        "recommendedVersion": "4.6.3",
+        "isCompatible": true,
+        "description": "\u6846\u67B6\u5F15\u7528\u4E2D\u5305\u542B NuGet \u5305\u529F\u80FD",
+        "versions": [
+          {
+            "version": "4.6.3",
+            "projects": [
+              "SnakeLauncherWPF"
+            ],
+            "isRecommended": true
+          }
+        ]
+      },
+      {
+        "name": "System.Numerics.Vectors",
+        "totalProjectCount": 1,
+        "distinctVersionCount": 1,
+        "recommendedVersion": "4.6.1",
+        "isCompatible": true,
+        "description": "\u6846\u67B6\u5F15\u7528\u4E2D\u5305\u542B NuGet \u5305\u529F\u80FD",
+        "versions": [
+          {
+            "version": "4.6.1",
+            "projects": [
+              "SnakeLauncherWPF"
+            ],
+            "isRecommended": true
+          }
+        ]
+      },
+      {
+        "name": "System.Runtime.CompilerServices.Unsafe",
+        "totalProjectCount": 1,
+        "distinctVersionCount": 1,
+        "recommendedVersion": "6.1.2",
+        "isCompatible": true,
+        "description": "",
+        "versions": [
+          {
+            "version": "6.1.2",
+            "projects": [
+              "SnakeLauncherWPF"
+            ],
+            "isRecommended": true
+          }
+        ]
+      },
+      {
+        "name": "System.Text.Encodings.Web",
+        "totalProjectCount": 1,
+        "distinctVersionCount": 1,
+        "recommendedVersion": "10.0.12",
+        "isCompatible": true,
+        "description": "\u5EFA\u8BAE\u5347\u7EA7 NuGet \u5305",
+        "versions": [
+          {
+            "version": "10.0.8",
+            "projects": [
+              "SnakeLauncherWPF"
+            ],
+            "isRecommended": false
+          }
+        ],
+        "upgrade": {
+          "newVersion": "10.0.12"
+        }
+      },
+      {
+        "name": "System.Text.Json",
+        "totalProjectCount": 1,
+        "distinctVersionCount": 1,
+        "recommendedVersion": "10.0.12",
+        "isCompatible": true,
+        "description": "\u5EFA\u8BAE\u5347\u7EA7 NuGet \u5305",
+        "versions": [
+          {
+            "version": "10.0.8",
+            "projects": [
+              "SnakeLauncherWPF"
+            ],
+            "isRecommended": false
+          }
+        ],
+        "upgrade": {
+          "newVersion": "10.0.12"
+        }
+      },
+      {
+        "name": "System.Threading.Tasks.Extensions",
+        "totalProjectCount": 1,
+        "distinctVersionCount": 1,
+        "recommendedVersion": "4.6.3",
+        "isCompatible": true,
+        "description": "\u6846\u67B6\u5F15\u7528\u4E2D\u5305\u542B NuGet \u5305\u529F\u80FD",
+        "versions": [
+          {
+            "version": "4.6.3",
+            "projects": [
+              "SnakeLauncherWPF"
+            ],
+            "isRecommended": true
+          }
+        ]
+      },
+      {
+        "name": "System.ValueTuple",
+        "totalProjectCount": 1,
+        "distinctVersionCount": 1,
+        "recommendedVersion": "4.6.2",
+        "isCompatible": true,
+        "description": "\u6846\u67B6\u5F15\u7528\u4E2D\u5305\u542B NuGet \u5305\u529F\u80FD",
+        "versions": [
+          {
+            "version": "4.6.2",
+            "projects": [
+              "SnakeLauncherWPF"
+            ],
+            "isRecommended": true
+          }
+        ]
+      }
+    ]
+  },
+  "projects": [
+    {
+      "name": "SnakeLauncherWPF",
+      "path": "SnakeLauncherWPF.csproj",
+      "isSdk": false,
+      "currentFrameworks": [
+        "net48"
+      ],
+      "targetFramework": "net10.0",
+      "dependencies": {
+        "packages": [
+          {
+            "name": "Microsoft.Bcl.AsyncInterfaces",
+            "version": "10.0.8",
+            "isTransitive": false,
+            "isGlobal": false,
+            "isImplicit": false,
+            "definedIn": [
+              {
+                "path": "packages.config"
+              }
+            ],
+            "description": "\u5EFA\u8BAE\u5347\u7EA7 NuGet \u5305",
+            "compatibility": "valid",
+            "recommendedVersion": "10.0.12",
+            "upgrade": {
+              "newVersion": "10.0.12"
+            }
+          },
+          {
+            "name": "System.Buffers",
+            "version": "4.6.1",
+            "isTransitive": false,
+            "isGlobal": false,
+            "isImplicit": false,
+            "definedIn": [
+              {
+                "path": "packages.config"
+              }
+            ],
+            "description": "\u6846\u67B6\u5F15\u7528\u4E2D\u5305\u542B NuGet \u5305\u529F\u80FD",
+            "compatibility": "valid",
+            "recommendedVersion": ""
+          },
+          {
+            "name": "System.IO.Pipelines",
+            "version": "10.0.8",
+            "isTransitive": false,
+            "isGlobal": false,
+            "isImplicit": false,
+            "definedIn": [
+              {
+                "path": "packages.config"
+              }
+            ],
+            "description": "\u5EFA\u8BAE\u5347\u7EA7 NuGet \u5305",
+            "compatibility": "valid",
+            "recommendedVersion": "10.0.12",
+            "upgrade": {
+              "newVersion": "10.0.12"
+            }
+          },
+          {
+            "name": "System.Memory",
+            "version": "4.6.3",
+            "isTransitive": false,
+            "isGlobal": false,
+            "isImplicit": false,
+            "definedIn": [
+              {
+                "path": "packages.config"
+              }
+            ],
+            "description": "\u6846\u67B6\u5F15\u7528\u4E2D\u5305\u542B NuGet \u5305\u529F\u80FD",
+            "compatibility": "valid",
+            "recommendedVersion": ""
+          },
+          {
+            "name": "System.Numerics.Vectors",
+            "version": "4.6.1",
+            "isTransitive": false,
+            "isGlobal": false,
+            "isImplicit": false,
+            "definedIn": [
+              {
+                "path": "packages.config"
+              }
+            ],
+            "description": "\u6846\u67B6\u5F15\u7528\u4E2D\u5305\u542B NuGet \u5305\u529F\u80FD",
+            "compatibility": "valid",
+            "recommendedVersion": ""
+          },
+          {
+            "name": "System.Runtime.CompilerServices.Unsafe",
+            "version": "6.1.2",
+            "isTransitive": false,
+            "isGlobal": false,
+            "isImplicit": false,
+            "definedIn": [
+              {
+                "path": "packages.config"
+              }
+            ],
+            "description": "",
+            "compatibility": "valid",
+            "recommendedVersion": ""
+          },
+          {
+            "name": "System.Text.Encodings.Web",
+            "version": "10.0.8",
+            "isTransitive": false,
+            "isGlobal": false,
+            "isImplicit": false,
+            "definedIn": [
+              {
+                "path": "packages.config"
+              }
+            ],
+            "description": "\u5EFA\u8BAE\u5347\u7EA7 NuGet \u5305",
+            "compatibility": "valid",
+            "recommendedVersion": "10.0.12",
+            "upgrade": {
+              "newVersion": "10.0.12"
+            }
+          },
+          {
+            "name": "System.Text.Json",
+            "version": "10.0.8",
+            "isTransitive": false,
+            "isGlobal": false,
+            "isImplicit": false,
+            "definedIn": [
+              {
+                "path": "packages.config"
+              }
+            ],
+            "description": "\u5EFA\u8BAE\u5347\u7EA7 NuGet \u5305",
+            "compatibility": "valid",
+            "recommendedVersion": "10.0.12",
+            "upgrade": {
+              "newVersion": "10.0.12"
+            }
+          },
+          {
+            "name": "System.Threading.Tasks.Extensions",
+            "version": "4.6.3",
+            "isTransitive": false,
+            "isGlobal": false,
+            "isImplicit": false,
+            "definedIn": [
+              {
+                "path": "packages.config"
+              }
+            ],
+            "description": "\u6846\u67B6\u5F15\u7528\u4E2D\u5305\u542B NuGet \u5305\u529F\u80FD",
+            "compatibility": "valid",
+            "recommendedVersion": ""
+          },
+          {
+            "name": "System.ValueTuple",
+            "version": "4.6.2",
+            "isTransitive": false,
+            "isGlobal": false,
+            "isImplicit": false,
+            "definedIn": [
+              {
+                "path": "packages.config"
+              }
+            ],
+            "description": "\u6846\u67B6\u5F15\u7528\u4E2D\u5305\u542B NuGet \u5305\u529F\u80FD",
+            "compatibility": "valid",
+            "recommendedVersion": ""
+          }
+        ],
+        "assemblies": [
+          {
+            "name": "Microsoft.Bcl.AsyncInterfaces",
+            "version": "10.0.0.8",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "packages\\Microsoft.Bcl.AsyncInterfaces.10.0.8\\lib\\net462\\Microsoft.Bcl.AsyncInterfaces.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "Microsoft.VisualBasic",
+            "version": "10.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\Microsoft.VisualBasic.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\System.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.Buffers",
+            "version": "4.0.5.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "packages\\System.Buffers.4.6.1\\lib\\net462\\System.Buffers.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.Data",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\System.Data.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.Drawing",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\System.Drawing.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.IO.Compression",
+            "version": "4.2.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\System.IO.Compression.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.IO.Compression.FileSystem",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\System.IO.Compression.FileSystem.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.IO.Pipelines",
+            "version": "10.0.0.8",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "packages\\System.IO.Pipelines.10.0.8\\lib\\net462\\System.IO.Pipelines.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.Memory",
+            "version": "4.0.5.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "packages\\System.Memory.4.6.3\\lib\\net462\\System.Memory.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.Numerics",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\System.Numerics.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.Numerics.Vectors",
+            "version": "4.1.6.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "packages\\System.Numerics.Vectors.4.6.1\\lib\\net462\\System.Numerics.Vectors.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.Runtime.CompilerServices.Unsafe",
+            "version": "6.0.3.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "packages\\System.Runtime.CompilerServices.Unsafe.6.1.2\\lib\\net462\\System.Runtime.CompilerServices.Unsafe.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.Text.Encodings.Web",
+            "version": "10.0.0.8",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "packages\\System.Text.Encodings.Web.10.0.8\\lib\\net462\\System.Text.Encodings.Web.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.Text.Json",
+            "version": "10.0.0.8",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "packages\\System.Text.Json.10.0.8\\lib\\net462\\System.Text.Json.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.Threading.Tasks.Extensions",
+            "version": "4.2.4.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "packages\\System.Threading.Tasks.Extensions.4.6.3\\lib\\net462\\System.Threading.Tasks.Extensions.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.ValueTuple",
+            "version": "4.0.5.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "packages\\System.ValueTuple.4.6.2\\lib\\net47\\System.ValueTuple.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.Windows.Forms",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\System.Windows.Forms.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.Xml",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\System.Xml.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "Microsoft.CSharp",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\Microsoft.CSharp.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.Core",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\System.Core.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.Xml.Linq",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\System.Xml.Linq.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.Data.DataSetExtensions",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\System.Data.DataSetExtensions.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.Net.Http",
+            "version": "4.2.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\System.Net.Http.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.Xaml",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\System.Xaml.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "WindowsBase",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\WindowsBase.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "PresentationCore",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\PresentationCore.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "PresentationFramework",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": "SnakeLauncherWPF.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\PresentationFramework.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "mscorlib",
+            "version": "4.0.0.0",
+            "isTransitive": true,
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\mscorlib.dll",
+            "compatibility": "valid"
+          }
+        ],
+        "projectReferences": [],
+        "frameworkReferences": []
+      }
+    },
+    {
+      "name": "SnakeLauncherWPF.Updater",
+      "path": ".Updater\\SnakeLauncherWPF.Updater.csproj",
+      "isSdk": false,
+      "currentFrameworks": [
+        "net48"
+      ],
+      "targetFramework": "net10.0",
+      "dependencies": {
+        "packages": [],
+        "assemblies": [
+          {
+            "name": "System",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": ".Updater\\SnakeLauncherWPF.Updater.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\System.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.Core",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": ".Updater\\SnakeLauncherWPF.Updater.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\System.Core.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.Data",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": ".Updater\\SnakeLauncherWPF.Updater.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\System.Data.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.Drawing",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": ".Updater\\SnakeLauncherWPF.Updater.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\System.Drawing.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.IO.Compression",
+            "version": "4.2.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": ".Updater\\SnakeLauncherWPF.Updater.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\System.IO.Compression.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.IO.Compression.FileSystem",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": ".Updater\\SnakeLauncherWPF.Updater.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\System.IO.Compression.FileSystem.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.Xml",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": ".Updater\\SnakeLauncherWPF.Updater.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\System.Xml.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.Xml.Linq",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": ".Updater\\SnakeLauncherWPF.Updater.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\System.Xml.Linq.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "Microsoft.CSharp",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": ".Updater\\SnakeLauncherWPF.Updater.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\Microsoft.CSharp.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.Net.Http",
+            "version": "4.2.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": ".Updater\\SnakeLauncherWPF.Updater.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\System.Net.Http.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "WindowsBase",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": ".Updater\\SnakeLauncherWPF.Updater.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\WindowsBase.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "PresentationCore",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": ".Updater\\SnakeLauncherWPF.Updater.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\PresentationCore.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "PresentationFramework",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": ".Updater\\SnakeLauncherWPF.Updater.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\PresentationFramework.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "System.Xaml",
+            "version": "4.0.0.0",
+            "isTransitive": false,
+            "definedIn": [
+              {
+                "path": ".Updater\\SnakeLauncherWPF.Updater.csproj"
+              }
+            ],
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\System.Xaml.dll",
+            "compatibility": "valid"
+          },
+          {
+            "name": "mscorlib",
+            "version": "4.0.0.0",
+            "isTransitive": true,
+            "physicalPath": "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8\\mscorlib.dll",
+            "compatibility": "valid"
+          }
+        ],
+        "projectReferences": [],
+        "frameworkReferences": []
+      }
+    }
+  ]
+}

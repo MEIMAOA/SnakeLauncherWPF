@@ -1,0 +1,12 @@
+# 01-prerequisites: 验证 .NET 10 工具链与升级前基线
+
+确认 .NET 10 SDK、global.json 和解决方案加载状态满足迁移要求，并记录当前两个 .NET Framework 4.8 项目的构建基线。研究主项目的 WPF/WinForms 混合桌面配置、Updater 项目位置及现有包还原方式，确保后续转换不会遗漏项目资产。
+
+## Research Findings
+- .NET SDK 10.0.401 和 MSBuild 18.9.11 已安装；Windows Desktop runtime 10.0.12 可用；仓库未发现 global.json。
+- 解决方案包含两个项目：`SnakeLauncherWPF.csproj`（仓库根目录）和 `E:\KernelDeleteDriver\SnakeLauncherWPF.Updater\SnakeLauncherWPF.Updater.csproj`（仓库相邻目录）。两者当前均为 net48、旧式项目且没有项目引用，属于同一 Tier 1。
+- 主项目是 WPF/WinForms 混合桌面程序，包含 `App.xaml`、两个窗口、Properties 资源、`App.config` 和 `packages.config`；10 个包均从 `packages.config` 定义，其中 Microsoft.Bcl.AsyncInterfaces、System.IO.Pipelines、System.Text.Encodings.Web、System.Text.Json 评估为建议升级。
+- Updater 项目为独立 WPF 项目，无 NuGet 包引用；包含 WPF 程序集引用、System.Drawing 和压缩/网络 API。
+- 由于项目仍为非 SDK-style 且包含 WPF/XAML/资源，基线和转换后的验证应使用 Visual Studio MSBuild，而不是直接使用 dotnet build。
+
+**Done when**: .NET 10 SDK 与 SDK 选择验证通过，升级前基线结果已记录，两个项目及其包管理方式已明确。

@@ -191,6 +191,10 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include=".github\upgrades\scenarios\dotnet-version-upgrade\plan.md" />
+    <None Include=".github\upgrades\scenarios\dotnet-version-upgrade\scenario-instructions.md" />
+    <None Include=".github\upgrades\scenarios\dotnet-version-upgrade\tasks.md" />
+    <None Include=".github\upgrades\scenarios\dotnet-version-upgrade\upgrade-options.md" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

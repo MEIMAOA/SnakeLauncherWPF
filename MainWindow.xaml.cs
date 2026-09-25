@@ -1026,8 +1026,7 @@ namespace SnakeLauncherWPF
                 try { _rootGrid.Children.Remove(overlay); } catch { }
             };
             overlay.BeginAnimation(OpacityProperty, fadeOut);
-        }git config --global user.name "你的姓名"
-git config --global user.email "你的邮箱"
+        }
 
         private void OnCheatDetected(string reason)
         {

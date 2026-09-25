@@ -1,0 +1,5 @@
+# 02-sdk-style-conversion: 转换两个桌面项目为 SDK-style
+
+将 `SnakeLauncherWPF.csproj` 和 `SnakeLauncherWPF.Updater.csproj` 从旧式 MSBuild 项目转换为 SDK-style，同时保持当前 .NET Framework 4.8 目标以隔离项目结构变化。转换范围包括 packages.config 到 PackageReference、WPF/WinForms 构建属性、资源与 XAML 项目项、平台配置和现有程序集元数据；不得把此任务与 TFM/API 迁移合并。
+
+**Done when**: 两个项目均为 SDK-style、旧式导入和 packages.config 依赖已处理，仍能在当前基线下还原并编译，且资源和 XAML 均被正确识别。
