@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <Import Project="$(NuGetPackageRoot)system.valuetuple\4.6.2\buildTransitive\net471\System.ValueTuple.targets" Condition="Exists('$(NuGetPackageRoot)system.valuetuple\4.6.2\buildTransitive\net471\System.ValueTuple.targets')" />
+    <Import Project="$(NuGetPackageRoot)system.text.json\10.0.8\buildTransitive\net462\System.Text.Json.targets" Condition="Exists('$(NuGetPackageRoot)system.text.json\10.0.8\buildTransitive\net462\System.Text.Json.targets')" />
+  </ImportGroup>
+</Project>
