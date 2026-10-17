@@ -1,4 +1,6 @@
-﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -184,14 +186,40 @@ namespace SnakeLauncherWPF
                         return result;
                     }
 
+                    // ★ 同一 Release 现在按架构提供多个压缩包（Windows64 / Windows32 / WindowsARM64），
+                    //   必须按当前进程架构挑选，否则可能下载到错误架构的启动器。
                     if (release.assets != null && release.assets.Length > 0)
                     {
+                        string preferArch =
+                            System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture ==
+                            System.Runtime.InteropServices.Architecture.Arm64 ? "arm64"
+                            : (Environment.Is64BitOperatingSystem ? "x64" : "x86");
+
+                        int ArchScore(string name)
+                        {
+                            string n = (name ?? "").ToLowerInvariant();
+                            bool isArm = n.Contains("arm64") || n.Contains("aarch64");
+                            bool isX86 = n.Contains("windows32") || n.Contains("win32") || n.Contains("x86") || n.Contains("-32") || n.Contains("_32");
+                            bool isX64 = n.Contains("windows64") || n.Contains("win64") || n.Contains("x64") || n.Contains("-64") || n.Contains("_64");
+
+                            if (preferArch == "arm64") return isArm ? 100 : (isX64 ? 60 : (isX86 ? 40 : 50));
+                            if (preferArch == "x64") return isX64 ? 100 : (isX86 ? 60 : (isArm ? 10 : 50));
+                            return isX86 ? 100 : (isX64 ? 60 : (isArm ? 10 : 50));
+                        }
+
+                        var candidates = new List<GitHubAsset>();
                         foreach (var asset in release.assets)
                         {
                             if (string.IsNullOrEmpty(asset.name)) continue;
                             if (!asset.name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)) continue;
                             if (asset.name.IndexOf(AssetNameKeyword, StringComparison.OrdinalIgnoreCase) < 0) continue;
+                            candidates.Add(asset);
+                        }
 
+                        foreach (var asset in candidates
+                            .OrderByDescending(x => ArchScore(x.name))
+                            .ThenByDescending(x => x.size))
+                        {
                             result.DownloadUrl = asset.browser_download_url;
                             result.FileSize = asset.size;
                             break;

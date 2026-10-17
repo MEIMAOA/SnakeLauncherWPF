@@ -1,0 +1,50 @@
+﻿# .NET Version Upgrade
+
+## Preferences
+- **Flow Mode**: Automatic
+- **Target Framework**: net10.0
+- **Commit Strategy**: After Each Task
+
+## Source Control
+- **Source Branch**: master
+- **Working Branch**: upgrade-dotnet-10
+- **Commit Strategy**: After Each Task
+- **Branch Sync**: Auto (Merge)
+
+## Upgrade Options
+**Source**: .github/upgrades/scenarios/dotnet-version-upgrade/upgrade-options.md
+
+### Strategy
+- Upgrade Strategy: Bottom-Up
+
+### Project Structure
+- Project Approach: In-place
+- Package Management: Per-Project (defer CPM to post-migration)
+
+### Compatibility
+- Unsupported API Handling: Defer Complex Changes
+- Windows Native APIs: Windows Compatibility Pack
+
+### Modernization
+- Nullable Reference Types: Leave Disabled
+
+## Strategy
+**Selected**: Bottom-Up (Dependency-First)
+**Rationale**: 两个 .NET Framework 4.8 项目均无项目引用，形成一个叶节点层；仍按 SDK 转换、目标框架迁移、最终验证的依赖优先顺序执行。
+
+### Execution Constraints
+- 先验证 .NET 10 SDK 和 global.json 兼容性，再修改项目。
+- SDK-style 转换必须作为独立任务，并在目标框架升级之前完成。
+- 两个无项目引用的桌面项目属于同一层；该层完成后必须还原、编译并运行测试。
+- 简单 API 替换直接修复；复杂 API 变更记录为后续解析工作，不得用警告抑制掩盖问题。
+- 保留按项目包管理；解决方案稳定后再评估 CPM，不在本次迁移中引入 Directory.Packages.props。
+
+## Build Tool Decisions
+- **SnakeLauncherWPF.csproj**: Visual Studio MSBuild（旧式项目、WPF/XAML、WinForms、资源文件）
+- **SnakeLauncherWPF.Updater.csproj**: Visual Studio MSBuild（旧式 WPF/XAML 项目）
+
+## Key Decisions Log
+- Upgrade the solution from .NET Framework 4.8 to .NET 10.
+- Existing non-`.vs` changes were committed before initialization; Visual Studio temporary files remain untracked and are excluded from upgrade commits.
+- Confirmed in-place desktop migration with deferred complex API handling and nullable disabled.
+- 升级前基线构建发现 `MarkdownRenderer.cs` 使用 C# 8 switch expression，但项目配置为 C# 7.3；该错误属于升级前已存在问题，后续 SDK/TFM 任务需处理。

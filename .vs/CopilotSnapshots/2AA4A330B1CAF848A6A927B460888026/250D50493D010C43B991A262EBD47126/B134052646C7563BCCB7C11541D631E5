@@ -1,0 +1,11 @@
+﻿# 02-sdk-style-conversion: 转换两个桌面项目为 SDK-style
+
+将 `SnakeLauncherWPF.csproj` 和 `SnakeLauncherWPF.Updater.csproj` 从旧式 MSBuild 项目转换为 SDK-style，同时保持当前 .NET Framework 4.8 目标以隔离项目结构变化。转换范围包括 packages.config 到 PackageReference、WPF/WinForms 构建属性、资源与 XAML 项目项、平台配置和现有程序集元数据；不得把此任务与 TFM/API 迁移合并。
+
+## Research Findings
+- 拓扑排序工具返回顺序：`E:\KernelDeleteDriver\SnakeLauncherWPF\SnakeLauncherWPF.csproj`，随后 `E:\KernelDeleteDriver\SnakeLauncherWPF.Updater\SnakeLauncherWPF.Updater.csproj`；两个项目均无项目引用，转换必须逐个串行执行。
+- 主项目是旧式 WPF/WinForms 混合项目，含 10 个 packages.config 包、XAML、resx、嵌入资源 ZIP、x86/x64/ARM64 配置和 C# 7.3 配置；转换阶段不得升级 TFM 或包版本。
+- Updater 是独立旧式 WPF 项目，无 packages.config 或 NuGet 包，但有 XAML、resx/程序集资源和 Framework 程序集引用。
+- 按转换技能要求，每个项目转换后直接使用 Visual Studio MSBuild 验证；由于升级前已存在 CS8370，若当前 net48 构建仍失败，需区分既有语言版本问题与转换回归。
+
+**Done when**: 两个项目均为 SDK-style、旧式导入和 packages.config 依赖已处理，仍能在当前基线下还原并编译，且资源和 XAML 均被正确识别。

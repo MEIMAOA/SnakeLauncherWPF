@@ -1,0 +1,15 @@
+﻿# .NET Version Upgrade
+
+## Preferences
+- **Flow Mode**: Automatic
+- **Target Framework**: net10.0
+
+## Source Control
+- **Source Branch**: master
+- **Working Branch**: upgrade-dotnet-10
+- **Commit Strategy**: After Each Task
+- **Branch Sync**: Auto (Merge)
+
+## Key Decisions Log
+- Upgrade the solution from .NET Framework 4.8 to .NET 10.
+- Existing non-`.vs` changes were committed before initialization; Visual Studio temporary files remain untracked and are excluded from upgrade commits.

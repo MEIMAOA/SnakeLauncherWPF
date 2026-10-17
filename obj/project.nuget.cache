@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "QFcpclDvKcU=",
+  "dgSpecHash": "ptqMa2RQ9bk=",
   "success": true,
   "projectFilePath": "E:\\KernelDeleteDriver\\SnakeLauncherWPF\\SnakeLauncherWPF.csproj",
   "expectedPackageFiles": [
@@ -15,5 +15,102 @@
     "C:\\Users\\18787\\.nuget\\packages\\system.threading.tasks.extensions\\4.6.3\\system.threading.tasks.extensions.4.6.3.nupkg.sha512",
     "C:\\Users\\18787\\.nuget\\packages\\system.valuetuple\\4.6.2\\system.valuetuple.4.6.2.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "NU1510",
+      "level": "Warning",
+      "message": "PackageReference System.Buffers 将不会被裁剪。此包自动可用，无需显式引用。移除 PackageReference 项。",
+      "projectPath": "E:\\KernelDeleteDriver\\SnakeLauncherWPF\\SnakeLauncherWPF.csproj",
+      "warningLevel": 1,
+      "filePath": "E:\\KernelDeleteDriver\\SnakeLauncherWPF\\SnakeLauncherWPF.csproj",
+      "libraryId": "System.Buffers",
+      "targetGraphs": [
+        "net10.0-windows7.0"
+      ]
+    },
+    {
+      "code": "NU1510",
+      "level": "Warning",
+      "message": "PackageReference System.IO.Pipelines 将不会被裁剪。此包自动可用，无需显式引用。移除 PackageReference 项。",
+      "projectPath": "E:\\KernelDeleteDriver\\SnakeLauncherWPF\\SnakeLauncherWPF.csproj",
+      "warningLevel": 1,
+      "filePath": "E:\\KernelDeleteDriver\\SnakeLauncherWPF\\SnakeLauncherWPF.csproj",
+      "libraryId": "System.IO.Pipelines",
+      "targetGraphs": [
+        "net10.0-windows7.0"
+      ]
+    },
+    {
+      "code": "NU1510",
+      "level": "Warning",
+      "message": "PackageReference System.Memory 将不会被裁剪。此包自动可用，无需显式引用。移除 PackageReference 项。",
+      "projectPath": "E:\\KernelDeleteDriver\\SnakeLauncherWPF\\SnakeLauncherWPF.csproj",
+      "warningLevel": 1,
+      "filePath": "E:\\KernelDeleteDriver\\SnakeLauncherWPF\\SnakeLauncherWPF.csproj",
+      "libraryId": "System.Memory",
+      "targetGraphs": [
+        "net10.0-windows7.0"
+      ]
+    },
+    {
+      "code": "NU1510",
+      "level": "Warning",
+      "message": "PackageReference System.Numerics.Vectors 将不会被裁剪。此包自动可用，无需显式引用。移除 PackageReference 项。",
+      "projectPath": "E:\\KernelDeleteDriver\\SnakeLauncherWPF\\SnakeLauncherWPF.csproj",
+      "warningLevel": 1,
+      "filePath": "E:\\KernelDeleteDriver\\SnakeLauncherWPF\\SnakeLauncherWPF.csproj",
+      "libraryId": "System.Numerics.Vectors",
+      "targetGraphs": [
+        "net10.0-windows7.0"
+      ]
+    },
+    {
+      "code": "NU1510",
+      "level": "Warning",
+      "message": "PackageReference System.Runtime.CompilerServices.Unsafe 将不会被裁剪。此包自动可用，无需显式引用。移除 PackageReference 项。",
+      "projectPath": "E:\\KernelDeleteDriver\\SnakeLauncherWPF\\SnakeLauncherWPF.csproj",
+      "warningLevel": 1,
+      "filePath": "E:\\KernelDeleteDriver\\SnakeLauncherWPF\\SnakeLauncherWPF.csproj",
+      "libraryId": "System.Runtime.CompilerServices.Unsafe",
+      "targetGraphs": [
+        "net10.0-windows7.0"
+      ]
+    },
+    {
+      "code": "NU1510",
+      "level": "Warning",
+      "message": "PackageReference System.Text.Encodings.Web 将不会被裁剪。此包自动可用，无需显式引用。移除 PackageReference 项。",
+      "projectPath": "E:\\KernelDeleteDriver\\SnakeLauncherWPF\\SnakeLauncherWPF.csproj",
+      "warningLevel": 1,
+      "filePath": "E:\\KernelDeleteDriver\\SnakeLauncherWPF\\SnakeLauncherWPF.csproj",
+      "libraryId": "System.Text.Encodings.Web",
+      "targetGraphs": [
+        "net10.0-windows7.0"
+      ]
+    },
+    {
+      "code": "NU1510",
+      "level": "Warning",
+      "message": "PackageReference System.Text.Json 将不会被裁剪。此包自动可用，无需显式引用。移除 PackageReference 项。",
+      "projectPath": "E:\\KernelDeleteDriver\\SnakeLauncherWPF\\SnakeLauncherWPF.csproj",
+      "warningLevel": 1,
+      "filePath": "E:\\KernelDeleteDriver\\SnakeLauncherWPF\\SnakeLauncherWPF.csproj",
+      "libraryId": "System.Text.Json",
+      "targetGraphs": [
+        "net10.0-windows7.0"
+      ]
+    },
+    {
+      "code": "NU1510",
+      "level": "Warning",
+      "message": "PackageReference System.Threading.Tasks.Extensions 将不会被裁剪。此包自动可用，无需显式引用。移除 PackageReference 项。",
+      "projectPath": "E:\\KernelDeleteDriver\\SnakeLauncherWPF\\SnakeLauncherWPF.csproj",
+      "warningLevel": 1,
+      "filePath": "E:\\KernelDeleteDriver\\SnakeLauncherWPF\\SnakeLauncherWPF.csproj",
+      "libraryId": "System.Threading.Tasks.Extensions",
+      "targetGraphs": [
+        "net10.0-windows7.0"
+      ]
+    }
+  ]
 }

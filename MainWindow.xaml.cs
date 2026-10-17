@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualBasic;
+using Microsoft.VisualBasic;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -1774,10 +1774,8 @@ namespace SnakeLauncherWPF
             }
 
             // ========== 6. 找到匹配的 asset ==========
-            GitHubReleaseAsset asset = targetRelease.Assets?
-                .Where(a => a.IsGamePackage)
-                .OrderByDescending(a => a.ParsedVersion ?? new Version(0, 0, 0, 0))
-                .FirstOrDefault();
+            // ★ 按当前系统架构优先挑选：Windows64 → Windows32 → ARM64，同架构取最高版本
+            GitHubReleaseAsset asset = GitHubReleaseService.PickBestAsset(targetRelease.Assets);
 
             if (asset == null)
             {
@@ -1979,6 +1977,7 @@ namespace SnakeLauncherWPF
                         }
                     }
                 });
+                FlattenSingleSubfolder(extractDir);
 
                 // ========== 删除 zip ==========
                 try { File.Delete(zipPath); } catch { }
@@ -3773,6 +3772,7 @@ namespace SnakeLauncherWPF
                         }
                     }
                 });
+                FlattenSingleSubfolder(extractDir);
 
                 try { File.Delete(zipPath); } catch { }
 
@@ -3861,6 +3861,11 @@ namespace SnakeLauncherWPF
         ///   1) C# exe 包：根目录有 SnakeGame.exe/SnakeGameWpf.exe + .json/.dll + 必须依赖
         ///   2) Python 包：根目录有任意 .py 文件
         /// </summary>
+        /// <summary>
+        /// 校验 GitHub 发行版压缩包。★ 兼容两种结构：
+        ///   · 旧 WPF 版：根目录直接放 SnakeGameWpf.exe + SnakeGame.dll + Newtonsoft.Json.dll
+        ///   · 新 v9 版：Unity 包，可能在根目录或一层文件夹内（Windows64/SnakeGame.exe + UnityPlayer.dll + SnakeGame_Data/）
+        /// </summary>
         private static (bool IsValid, string Message, string RootFiles) ValidateGamePackage(string zipPath)
         {
             try
@@ -3868,123 +3873,122 @@ namespace SnakeLauncherWPF
                 using (var archive = ZipFile.OpenRead(zipPath))
                 {
                     bool hasExe = false;
-                    bool hasJson = false;
-                    bool hasDll = false;
                     bool hasPy = false;
-                    bool hasNewtonsoftJson = false;   // ★ 强制依赖
-                    bool hasGameDll = false;          // ★ SnakeGame.dll / SnakeGameWpf.dll
-                    bool hasRuntimeConfig = false;    // ★ runtimeconfig.json
+                    bool hasNewtonsoftJson = false;
+                    bool hasGameDll = false;
+                    bool hasRuntimeConfig = false;
+                    bool hasUnityPlayer = false;
+                    bool hasDataFolder = false;
 
                     string exeName = null;
                     string pySampleName = null;
                     var rootFiles = new List<string>();
+                    var topEntries = new List<string>();
 
                     foreach (var entry in archive.Entries)
                     {
                         string fullName = entry.FullName.Replace('\\', '/');
-                        if (fullName.Contains("/")) continue;
-                        if (string.IsNullOrEmpty(entry.Name)) continue;
+                        string lowFull = fullName.ToLowerInvariant();
+                        if (lowFull.Contains("_data/") || lowFull.EndsWith("_data"))
+                            hasDataFolder = true;
+
+                        string[] parts = fullName.Split('/');
+                        int depth = parts.Length - 1;   // 0 = 根目录
+
+                        if (string.IsNullOrEmpty(entry.Name))
+                        {
+                            if (depth == 0) topEntries.Add(fullName.TrimEnd('/'));
+                            continue;
+                        }
 
                         string name = entry.Name;
                         string lower = name.ToLowerInvariant();
-                        rootFiles.Add(name);
+
+                        if (depth == 0) rootFiles.Add(name);
+                        else if (depth == 1 && rootFiles.Count < 12) rootFiles.Add(fullName);
+
+                        if (lower == "unityplayer.dll" || lower == "tuanjieplayer.dll") hasUnityPlayer = true;
 
                         if (lower == "snakegame.exe" || lower == "snakegamewpf.exe")
                         {
                             hasExe = true;
-                            exeName = name;
+                            if (exeName == null) exeName = name;
                         }
-                        else if (lower == "newtonsoft.json.dll")
-                        {
-                            hasNewtonsoftJson = true;
-                            hasDll = true;
-                        }
-                        else if (lower == "snakegame.dll" || lower == "snakegamewpf.dll")
-                        {
-                            hasGameDll = true;
-                            hasDll = true;
-                        }
-                        else if (lower == "snakegame.runtimeconfig.json"
-                              || lower == "snakegamewpf.runtimeconfig.json")
-                        {
-                            hasRuntimeConfig = true;
-                            hasJson = true;
-                        }
-                        else if (lower.EndsWith(".json"))
-                        {
-                            hasJson = true;
-                        }
-                        else if (lower.EndsWith(".dll"))
-                        {
-                            hasDll = true;
-                        }
-                        else if (lower.EndsWith(".py"))
-                        {
-                            hasPy = true;
-                            if (pySampleName == null) pySampleName = name;
-                        }
+                        else if (lower == "newtonsoft.json.dll") { hasNewtonsoftJson = true; }
+                        else if (lower == "snakegame.dll" || lower == "snakegamewpf.dll") { hasGameDll = true; }
+                        else if (lower == "snakegame.runtimeconfig.json" || lower == "snakegamewpf.runtimeconfig.json")
+                        { hasRuntimeConfig = true; }
+                        else if (lower.EndsWith(".py")) { hasPy = true; if (pySampleName == null) pySampleName = name; }
                     }
 
-                    if (rootFiles.Count == 0)
-                    {
-                        return (false,
-                            "压缩包根目录为空，可能内部还有一层文件夹。",
-                            "（无）");
-                    }
+                    string rootSummary = rootFiles.Count > 0
+                        ? string.Join("、", rootFiles.Take(10)) + (rootFiles.Count > 10 ? " …" : "")
+                        : string.Join("、", topEntries.Take(10));
 
-                    // ========== Python 包 ==========
+                    if (rootFiles.Count == 0 && topEntries.Count == 0)
+                        return (false, "压缩包为空。", "（无）");
+
                     if (hasPy)
-                    {
-                        return (true,
-                            "根目录文件：" + (pySampleName ?? "Python 脚本"),
-                            string.Join("、", rootFiles.Take(8)) + (rootFiles.Count > 8 ? " …" : ""));
-                    }
+                        return (true, "Python 脚本包：" + (pySampleName ?? "脚本"), rootSummary);
 
-                    // ========== C# exe 包：严格校验 ==========
                     if (!hasExe)
-                    {
                         return (false,
-                            "压缩包根目录中未找到 SnakeGame.exe 或 SnakeGameWpf.exe。",
-                            string.Join("、", rootFiles.Take(8)) + (rootFiles.Count > 8 ? " …" : ""));
+                            "未找到 SnakeGame.exe 或 SnakeGameWpf.exe。\n" +
+                            "压缩包根目录或第一层文件夹里必须包含这个可执行文件。",
+                            rootSummary);
+
+                    // Unity 包（v9.0.0 起）：有 UnityPlayer.dll 或 *_Data 目录即为合法
+                    if (hasUnityPlayer || hasDataFolder)
+                    {
+                        string detail = exeName ?? "SnakeGame.exe";
+                        if (hasUnityPlayer) detail += " + UnityPlayer.dll";
+                        if (hasDataFolder) detail += " + 游戏数据目录";
+                        return (true, "Unity 游戏包（" + detail + "）", rootSummary);
                     }
 
-                    // ★ 关键：必须含 Newtonsoft.Json.dll
+                    // 旧 WPF/.NET 包：严格校验
                     if (!hasNewtonsoftJson)
-                    {
-                        return (false,
-                            "缺少依赖库 Newtonsoft.Json.dll。\n" +
-                            "该文件是游戏的必需依赖，缺失会导致游戏启动崩溃。\n" +
-                            "请重新打包游戏（把 publish 目录下所有文件一起打包）。",
-                            string.Join("、", rootFiles.Take(8)) + (rootFiles.Count > 8 ? " …" : ""));
-                    }
-
-                    // ★ 必须含 SnakeGame.dll
+                        return (false, "缺少依赖库 Newtonsoft.Json.dll。\n该文件是游戏的必需依赖，缺失会导致启动崩溃。", rootSummary);
                     if (!hasGameDll)
-                    {
-                        return (false,
-                            "缺少主程序集 SnakeGame.dll。\n" +
-                            "SnakeGame.exe 只是启动外壳，真正的代码在 SnakeGame.dll 中。",
-                            string.Join("、", rootFiles.Take(8)) + (rootFiles.Count > 8 ? " …" : ""));
-                    }
-
+                        return (false, "缺少主程序集 SnakeGame.dll。\nSnakeGame.exe 只是启动外壳，真正的代码在 SnakeGame.dll 中。", rootSummary);
                     if (!hasRuntimeConfig)
-                    {
-                        return (false,
-                            "缺少 SnakeGame.runtimeconfig.json。\n" +
-                            "该文件告诉 .NET 运行时如何加载程序，缺失会导致启动失败。",
-                            string.Join("、", rootFiles.Take(8)) + (rootFiles.Count > 8 ? " …" : ""));
-                    }
+                        return (false, "缺少 SnakeGame.runtimeconfig.json。\n该文件告诉 .NET 运行时如何加载程序，缺失会导致启动失败。", rootSummary);
 
-                    var okParts = new List<string> { exeName, "SnakeGame.dll", "Newtonsoft.Json.dll" };
-                    return (true,
-                        "根目录文件：" + string.Join("、", okParts),
-                        string.Join("、", rootFiles.Take(8)) + (rootFiles.Count > 8 ? " …" : ""));
+                    return (true, "根目录文件：" + exeName + "、SnakeGame.dll、Newtonsoft.Json.dll", rootSummary);
                 }
             }
             catch (Exception ex)
             {
                 return (false, $"无法读取压缩包: {ex.Message}", "");
             }
+        }
+
+        /// <summary>
+        /// 解压后如果只有一层子文件夹（如 Windows64/），把内容上移到版本目录，
+        /// 保证扫描器能直接在版本目录下找到 SnakeGame.exe。
+        /// </summary>
+        private static void FlattenSingleSubfolder(string dir)
+        {
+            try
+            {
+                if (!Directory.Exists(dir)) return;
+                var files = Directory.GetFiles(dir);
+                var dirs = Directory.GetDirectories(dir);
+                if (files.Length != 0 || dirs.Length != 1) return;
+
+                string inner = dirs[0];
+                foreach (var f in Directory.GetFiles(inner, "*", SearchOption.AllDirectories))
+                {
+                    string rel = f.Substring(inner.Length).TrimStart('\\', '/');
+                    string dest = Path.Combine(dir, rel);
+                    string parent = Path.GetDirectoryName(dest);
+                    if (!string.IsNullOrEmpty(parent)) Directory.CreateDirectory(parent);
+                    if (File.Exists(dest)) File.Delete(dest);
+                    File.Move(f, dest);
+                }
+                Directory.Delete(inner, true);
+            }
+            catch { /* 扁平化失败不阻塞：扫描器仍会递归查找 */ }
         }
 
         private async Task EnsurePythonDependenciesAsync()

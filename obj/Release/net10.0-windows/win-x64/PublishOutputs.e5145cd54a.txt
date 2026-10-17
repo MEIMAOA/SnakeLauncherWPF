@@ -1,0 +1,5 @@
+E:\LauncherBuild\Windows64\SnakeLauncherWPF.exe
+E:\LauncherBuild\Windows64\SnakeLauncherWPF.dll
+E:\LauncherBuild\Windows64\SnakeLauncherWPF.deps.json
+E:\LauncherBuild\Windows64\SnakeLauncherWPF.runtimeconfig.json
+E:\LauncherBuild\Windows64\Microsoft.Bcl.AsyncInterfaces.dll

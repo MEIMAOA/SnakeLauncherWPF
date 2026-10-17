@@ -1,0 +1,5 @@
+﻿# 01-prerequisites: 验证 .NET 10 工具链与升级前基线
+
+确认 .NET 10 SDK、global.json 和解决方案加载状态满足迁移要求，并记录当前两个 .NET Framework 4.8 项目的构建基线。研究主项目的 WPF/WinForms 混合桌面配置、Updater 项目位置及现有包还原方式，确保后续转换不会遗漏项目资产。
+
+**Done when**: .NET 10 SDK 与 SDK 选择验证通过，升级前基线结果已记录，两个项目及其包管理方式已明确。

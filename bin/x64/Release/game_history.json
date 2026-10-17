@@ -1,5 +1,13 @@
 [
   {
+    "StartTime": "2026-10-11T20:10:39.5272967+08:00",
+    "DurationMinutes": 0.63357550833333331,
+    "FinalScore": 14,
+    "FinalKills": 0,
+    "Mode": "\u7ECF\u5178\u6A21\u5F0F",
+    "GamePath": "E:\\KernelDeleteDriver\\SnakeGameWpf\\bin\\x64\\Release\\net10.0-windows\\SnakeGame.exe"
+  },
+  {
     "StartTime": "2026-09-25T12:19:17.0159831+08:00",
     "DurationMinutes": 0.092920421666666669,
     "FinalScore": 0,
@@ -386,14 +394,6 @@
   {
     "StartTime": "2026-09-24T21:43:46.6411323+08:00",
     "DurationMinutes": 0.99996434833333336,
-    "FinalScore": 0,
-    "FinalKills": 0,
-    "Mode": "--",
-    "GamePath": "E:\\KernelDeleteDriver\\SnakeGameWpf\\bin\\x64\\Release\\net10.0-windows\\SnakeGame.exe"
-  },
-  {
-    "StartTime": "2026-09-24T21:42:17.5706148+08:00",
-    "DurationMinutes": 0.12448721,
     "FinalScore": 0,
     "FinalKills": 0,
     "Mode": "--",

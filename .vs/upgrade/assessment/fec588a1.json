@@ -1,0 +1,124 @@
+{
+  "reportConfigHash": "fec588a1",
+  "createdAtUtc": "2026-09-25T04:46:24.3387494Z",
+  "entries": [
+    {
+      "packageName": "Microsoft.Bcl.AsyncInterfaces",
+      "packageVersion": "10.0.8",
+      "insightsName": "Microsoft.Bcl.AsyncInterfaces",
+      "insightsCurrentVersion": "10.0.8",
+      "insightsNewVersion": "10.0.12",
+      "insightsDescription": "\u5EFA\u8BAE\u5347\u7EA7 NuGet \u5305",
+      "insightsIsCompatible": true,
+      "insightsProjects": [
+        "SnakeLauncherWPF.csproj"
+      ]
+    },
+    {
+      "packageName": "System.Buffers",
+      "packageVersion": "4.6.1",
+      "insightsName": "System.Buffers",
+      "insightsCurrentVersion": "4.6.1",
+      "insightsNewVersion": "",
+      "insightsDescription": "\u6846\u67B6\u5F15\u7528\u4E2D\u5305\u542B NuGet \u5305\u529F\u80FD",
+      "insightsIsCompatible": true,
+      "insightsProjects": [
+        "SnakeLauncherWPF.csproj"
+      ]
+    },
+    {
+      "packageName": "System.IO.Pipelines",
+      "packageVersion": "10.0.8",
+      "insightsName": "System.IO.Pipelines",
+      "insightsCurrentVersion": "10.0.8",
+      "insightsNewVersion": "10.0.12",
+      "insightsDescription": "\u5EFA\u8BAE\u5347\u7EA7 NuGet \u5305",
+      "insightsIsCompatible": true,
+      "insightsProjects": [
+        "SnakeLauncherWPF.csproj"
+      ]
+    },
+    {
+      "packageName": "System.Memory",
+      "packageVersion": "4.6.3",
+      "insightsName": "System.Memory",
+      "insightsCurrentVersion": "4.6.3",
+      "insightsNewVersion": "",
+      "insightsDescription": "\u6846\u67B6\u5F15\u7528\u4E2D\u5305\u542B NuGet \u5305\u529F\u80FD",
+      "insightsIsCompatible": true,
+      "insightsProjects": [
+        "SnakeLauncherWPF.csproj"
+      ]
+    },
+    {
+      "packageName": "System.Numerics.Vectors",
+      "packageVersion": "4.6.1",
+      "insightsName": "System.Numerics.Vectors",
+      "insightsCurrentVersion": "4.6.1",
+      "insightsNewVersion": "",
+      "insightsDescription": "\u6846\u67B6\u5F15\u7528\u4E2D\u5305\u542B NuGet \u5305\u529F\u80FD",
+      "insightsIsCompatible": true,
+      "insightsProjects": [
+        "SnakeLauncherWPF.csproj"
+      ]
+    },
+    {
+      "packageName": "System.Runtime.CompilerServices.Unsafe",
+      "packageVersion": "6.1.2",
+      "insightsName": "System.Runtime.CompilerServices.Unsafe",
+      "insightsCurrentVersion": "6.1.2",
+      "insightsNewVersion": "",
+      "insightsDescription": "",
+      "insightsIsCompatible": true,
+      "insightsProjects": []
+    },
+    {
+      "packageName": "System.Text.Encodings.Web",
+      "packageVersion": "10.0.8",
+      "insightsName": "System.Text.Encodings.Web",
+      "insightsCurrentVersion": "10.0.8",
+      "insightsNewVersion": "10.0.12",
+      "insightsDescription": "\u5EFA\u8BAE\u5347\u7EA7 NuGet \u5305",
+      "insightsIsCompatible": true,
+      "insightsProjects": [
+        "SnakeLauncherWPF.csproj"
+      ]
+    },
+    {
+      "packageName": "System.Text.Json",
+      "packageVersion": "10.0.8",
+      "insightsName": "System.Text.Json",
+      "insightsCurrentVersion": "10.0.8",
+      "insightsNewVersion": "10.0.12",
+      "insightsDescription": "\u5EFA\u8BAE\u5347\u7EA7 NuGet \u5305",
+      "insightsIsCompatible": true,
+      "insightsProjects": [
+        "SnakeLauncherWPF.csproj"
+      ]
+    },
+    {
+      "packageName": "System.Threading.Tasks.Extensions",
+      "packageVersion": "4.6.3",
+      "insightsName": "System.Threading.Tasks.Extensions",
+      "insightsCurrentVersion": "4.6.3",
+      "insightsNewVersion": "",
+      "insightsDescription": "\u6846\u67B6\u5F15\u7528\u4E2D\u5305\u542B NuGet \u5305\u529F\u80FD",
+      "insightsIsCompatible": true,
+      "insightsProjects": [
+        "SnakeLauncherWPF.csproj"
+      ]
+    },
+    {
+      "packageName": "System.ValueTuple",
+      "packageVersion": "4.6.2",
+      "insightsName": "System.ValueTuple",
+      "insightsCurrentVersion": "4.6.2",
+      "insightsNewVersion": "",
+      "insightsDescription": "\u6846\u67B6\u5F15\u7528\u4E2D\u5305\u542B NuGet \u5305\u529F\u80FD",
+      "insightsIsCompatible": true,
+      "insightsProjects": [
+        "SnakeLauncherWPF.csproj"
+      ]
+    }
+  ]
+}

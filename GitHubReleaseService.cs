@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -58,6 +58,9 @@ namespace SnakeLauncherWPF
     {
         public string Name { get; set; }
         public string BrowserDownloadUrl { get; set; }
+
+        /// <summary>压缩包对应架构：x64 / x86 / arm64 / any（由文件名识别）。</summary>
+        public string Architecture { get; set; } = "any";
         public long Size { get; set; }
         public string ContentType { get; set; }
         public int DownloadCount { get; set; }
@@ -110,7 +113,7 @@ namespace SnakeLauncherWPF
                 DisplayName = "SnakeGameWpf（C#）",
                 IsPythonRepo = false,
                 GamePackagePattern = new Regex(
-                    @"^SnakeGameWpf_(\d+(?:\.\d+){1,3})\.zip$",
+                    @"^SnakeGame(?:Wpf|Launcher)?[-_ ]?v?(\d+(?:\.\d+){0,3})(?:[-_ ]?(?:Windows(?:64|32|ARM64)|Win(?:32|64)|x64|x86|arm64))?\.zip$",
                     RegexOptions.IgnoreCase | RegexOptions.Compiled),
                 VersionGroupIndex = 1
             },
@@ -130,6 +133,67 @@ namespace SnakeLauncherWPF
         };
 
         private static readonly HttpClient _http = CreateHttpClient();
+
+        // ============================================================
+        //  ★ 发行版压缩包命名兼容层
+        //  已支持的历史/现有命名：
+        //    SnakeGameWpf_8.0.0.0.zip          （旧 WPF 版）
+        //    SnakeGameWpf_7.0.0.0.zip
+        //    SnakeGame-v9.0.0-Windows64.zip    （v9.0.0 正式版，64 位）
+        //    SnakeGame-v9.0.0-Windows32.zip    （v9.0.0 正式版，32 位）
+        //    SnakeGame_1.1.0.zip / SnakeGame-9.0.0.zip
+        // ============================================================
+
+        /// <summary>从文件名识别目标架构。</summary>
+        public static string DetectArchitecture(string fileName)
+        {
+            if (string.IsNullOrWhiteSpace(fileName)) return "any";
+            string n = fileName.ToLowerInvariant();
+            if (n.Contains("arm64") || n.Contains("aarch64")) return "arm64";
+            if (n.Contains("windows32") || n.Contains("win32") || n.Contains("x86") || n.Contains("-32") || n.Contains("_32") || n.Contains("32bit"))
+                return "x86";
+            if (n.Contains("windows64") || n.Contains("win64") || n.Contains("x64") || n.Contains("-64") || n.Contains("_64") || n.Contains("64bit"))
+                return "x64";
+            return "any";
+        }
+
+        /// <summary>
+        /// 从一次 Release 的所有资产里挑出"最适合当前系统"的游戏包：
+        /// 优先本机架构（64 位系统优先 Windows64；ARM64 系统优先原生 ARM64、其次 x64、最后 x86），
+        /// 同架构内按版本号从高到低。
+        /// </summary>
+        public static GitHubReleaseAsset PickBestAsset(IEnumerable<GitHubReleaseAsset> assets, string osArch = null)
+        {
+            if (assets == null) return null;
+            var list = assets.Where(a => a != null && a.IsGamePackage).ToList();
+            if (list.Count == 0) return null;
+
+            string prefer = osArch;
+            if (string.IsNullOrEmpty(prefer))
+            {
+                var pa = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture;
+                prefer = pa == System.Runtime.InteropServices.Architecture.Arm64
+                    ? "arm64"
+                    : (Environment.Is64BitOperatingSystem ? "x64" : "x86");
+            }
+
+            int Score(GitHubReleaseAsset a)
+            {
+                string arch = string.IsNullOrEmpty(a.Architecture) ? "any" : a.Architecture;
+                if (arch == prefer) return 100;
+                if (arch == "any") return 50;
+                if (prefer == "x64" && arch == "x86") return 20;     // 64 位系统可跑 32 位包
+                if (prefer == "arm64" && arch == "x64") return 30;   // ARM64 可仿真跑 x64
+                if (prefer == "arm64" && arch == "x86") return 10;
+                if (prefer == "x86" && arch == "x64") return 5;
+                return 0;
+            }
+
+            return list
+                .OrderByDescending(Score)
+                .ThenByDescending(a => a.ParsedVersion ?? new Version(0, 0, 0, 0))
+                .FirstOrDefault();
+        }
 
         private static HttpClient CreateHttpClient()
         {
@@ -202,7 +266,8 @@ namespace SnakeLauncherWPF
                             };
 
                             // 用仓库配置的正则匹配游戏包
-                            var pkgVersion = ParseAssetVersion(a.name,
+                            asset.Architecture = DetectArchitecture(a.name);
+                    var pkgVersion = ParseAssetVersion(a.name,
                                 repoConfig.GamePackagePattern,
                                 repoConfig.VersionGroupIndex);
 

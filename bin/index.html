@@ -1,0 +1,2018 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SnakeLauncherWPF - 现代化游戏启动器</title>
+<style>
+    /* ============================================================
+       Microsoft 官网风格重置
+       ============================================================ */
+    *, *::before, *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    :root {
+        --ms-blue: #0067b8;
+        --ms-blue-hover: #005da6;
+        --ms-blue-dark: #004578;
+        --ms-black: #000000;
+        --ms-text: #171717;
+        --ms-text-secondary: #616161;
+        --ms-text-tertiary: #8c8c8c;
+        --ms-border: #e6e6e6;
+        --ms-bg: #ffffff;
+        --ms-bg-alt: #f2f2f2;
+        --ms-bg-alt2: #fafafa;
+
+        --ms-red: #f25022;
+        --ms-green: #7fba00;
+        --ms-blue2: #00a4ef;
+        --ms-yellow: #ffb900;
+
+        --font: "Segoe UI", -apple-system, BlinkMacSystemFont, "Microsoft YaHei",
+                "PingFang SC", "Hiragino Sans GB", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 110px;
+    }
+
+    body {
+        font-family: var(--font);
+        font-size: 15px;
+        color: var(--ms-text);
+        background: var(--ms-bg);
+        line-height: 1.4;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        overflow-x: hidden;
+    }
+
+    a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    img { display: block; max-width: 100%; }
+
+    button { font-family: inherit; cursor: pointer; }
+
+    /* ============================================================
+       顶部实用栏
+       ============================================================ */
+    .ms-utility {
+        height: 30px;
+        background: #ffffff;
+        border-bottom: 1px solid transparent;
+        display: flex;
+        align-items: center;
+        padding: 0 5%;
+        position: relative;
+        z-index: 1002;
+    }
+
+    .ms-utility-inner {
+        width: 100%;
+        max-width: 1600px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 12px;
+    }
+
+    .ms-utility-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .ms-utility-left .ms-logo-mark {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: 1.5px;
+        width: 15px;
+        height: 15px;
+    }
+
+    .ms-utility-left .ms-logo-mark span {
+        display: block;
+    }
+
+    .ms-utility-left .ms-logo-mark span:nth-child(1) { background: var(--ms-red); }
+    .ms-utility-left .ms-logo-mark span:nth-child(2) { background: var(--ms-green); }
+    .ms-utility-left .ms-logo-mark span:nth-child(3) { background: var(--ms-blue2); }
+    .ms-utility-left .ms-logo-mark span:nth-child(4) { background: var(--ms-yellow); }
+
+    .ms-utility-left a {
+        color: var(--ms-text-secondary);
+        font-size: 12px;
+        transition: color 0.15s;
+    }
+
+    .ms-utility-left a:hover { color: var(--ms-text); text-decoration: underline; }
+
+    .ms-utility-right {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .ms-utility-right a {
+        color: var(--ms-text-secondary);
+        font-size: 12px;
+        padding: 4px 10px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        transition: color 0.15s;
+    }
+
+    .ms-utility-right a:hover { color: var(--ms-text); text-decoration: underline; }
+
+    /* ============================================================
+       主导航
+       ============================================================ */
+    .ms-nav {
+        height: 54px;
+        background: #ffffff;
+        display: flex;
+        align-items: center;
+        padding: 0 5%;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        border-bottom: 1px solid transparent;
+    }
+
+    .ms-nav.scrolled {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border-bottom-color: var(--ms-border);
+    }
+
+    .ms-nav-inner {
+        width: 100%;
+        max-width: 1600px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+    }
+
+    .ms-nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 15px;
+        font-weight: 400;
+        color: var(--ms-text);
+        padding: 8px 0;
+        margin-right: 22px;
+        white-space: nowrap;
+        transition: opacity 0.15s;
+    }
+
+    .ms-nav-logo:hover { opacity: 0.7; }
+
+    .ms-nav-logo .brand-mark {
+        width: 20px;
+        height: 20px;
+        border-radius: 2px;
+        background: var(--ms-blue);
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+    }
+
+    .ms-nav-logo .brand-text {
+        font-weight: 600;
+        font-size: 14.5px;
+        letter-spacing: -0.005em;
+    }
+
+    .ms-nav-menu {
+        display: flex;
+        align-items: center;
+        height: 54px;
+        flex: 1;
+    }
+
+    .ms-nav-menu a {
+        display: flex;
+        align-items: center;
+        height: 100%;
+        padding: 0 12px;
+        font-size: 13px;
+        color: var(--ms-text);
+        position: relative;
+        white-space: nowrap;
+        transition: color 0.15s;
+    }
+
+    .ms-nav-menu a::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 12px;
+        right: 12px;
+        height: 2px;
+        background: var(--ms-text);
+        transform: scaleX(0);
+        transform-origin: center;
+        transition: transform 0.2s ease;
+    }
+
+    .ms-nav-menu a:hover::after,
+    .ms-nav-menu a.active::after {
+        transform: scaleX(1);
+    }
+
+    .ms-nav-right {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-left: auto;
+    }
+
+    .ms-nav-icon {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 10px;
+        border-radius: 2px;
+        font-size: 13px;
+        color: var(--ms-text);
+        transition: background 0.15s;
+    }
+
+    .ms-nav-icon:hover {
+        background: var(--ms-bg-alt);
+    }
+
+    .ms-nav-login {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 10px;
+        border-radius: 2px;
+        font-size: 13px;
+        color: var(--ms-text);
+        transition: background 0.15s;
+    }
+
+    .ms-nav-login:hover {
+        background: var(--ms-bg-alt);
+    }
+
+    /* ============================================================
+       通用按钮
+       ============================================================ */
+    .ms-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        font-family: inherit;
+        font-size: 15px;
+        font-weight: 600;
+        padding: 10px 22px;
+        border-radius: 2px;
+        border: none;
+        cursor: pointer;
+        transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+        white-space: nowrap;
+        text-decoration: none;
+        line-height: 1.2;
+    }
+
+    .ms-btn-primary {
+        background: var(--ms-blue);
+        color: #ffffff;
+    }
+
+    .ms-btn-primary:hover {
+        background: var(--ms-blue-hover);
+    }
+
+    .ms-btn-secondary {
+        background: #ffffff;
+        color: var(--ms-text);
+        border: 1px solid #8c8c8c;
+    }
+
+    .ms-btn-secondary:hover {
+        background: var(--ms-bg-alt);
+    }
+
+    .ms-btn-white {
+        background: #ffffff;
+        color: var(--ms-text);
+    }
+
+    .ms-btn-white:hover {
+        background: #f2f2f2;
+    }
+
+    .ms-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--ms-blue);
+        transition: color 0.15s;
+    }
+
+    .ms-link:hover {
+        color: var(--ms-blue-dark);
+        text-decoration: underline;
+    }
+
+    .ms-link::after {
+        content: '›';
+        font-size: 18px;
+        line-height: 1;
+        font-weight: 400;
+        margin-left: 2px;
+        transition: transform 0.2s ease;
+    }
+
+    .ms-link:hover::after {
+        transform: translateX(3px);
+    }
+
+    /* ============================================================
+       Hero 横幅
+       ============================================================ */
+    .ms-hero {
+        position: relative;
+        background: linear-gradient(115deg, #0b1220 0%, #16213e 55%, #0f3460 100%);
+        overflow: hidden;
+        min-height: 560px;
+        display: flex;
+        align-items: center;
+    }
+
+    .ms-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(circle at 22% 40%, rgba(0, 120, 212, 0.4) 0%, transparent 48%),
+            radial-gradient(circle at 78% 62%, rgba(0, 194, 209, 0.28) 0%, transparent 50%);
+        pointer-events: none;
+    }
+
+    .ms-hero::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(255,255,255,0.028) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.028) 1px, transparent 1px);
+        background-size: 40px 40px;
+        mask-image: radial-gradient(ellipse 85% 75% at 50% 50%, black 25%, transparent 82%);
+        -webkit-mask-image: radial-gradient(ellipse 85% 75% at 50% 50%, black 25%, transparent 82%);
+        pointer-events: none;
+    }
+
+    .ms-hero-inner {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 70px 5%;
+        display: grid;
+        grid-template-columns: 1fr 1.08fr;
+        gap: 64px;
+        align-items: center;
+    }
+
+    .ms-hero-copy {
+        max-width: 560px;
+    }
+
+    .ms-hero-eyebrow {
+        display: inline-block;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #7dd3fc;
+        margin-bottom: 18px;
+    }
+
+    .ms-hero h1 {
+        font-size: clamp(34px, 4vw, 52px);
+        font-weight: 600;
+        line-height: 1.14;
+        letter-spacing: -0.02em;
+        color: #ffffff;
+        margin-bottom: 20px;
+    }
+
+    .ms-hero p {
+        font-size: 17px;
+        line-height: 1.55;
+        color: rgba(255, 255, 255, 0.84);
+        margin-bottom: 30px;
+        max-width: 500px;
+    }
+
+    .ms-hero-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 26px;
+    }
+
+    .ms-hero-actions .ms-btn-secondary {
+        background: transparent;
+        color: #ffffff;
+        border-color: rgba(255, 255, 255, 0.55);
+    }
+
+    .ms-hero-actions .ms-btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: #ffffff;
+    }
+
+    .ms-hero-meta {
+        display: flex;
+        gap: 22px;
+        flex-wrap: wrap;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .ms-hero-meta span {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .ms-hero-meta svg { color: #7dd3fc; flex-shrink: 0; }
+
+    /* ============================================================
+       应用窗口模拟
+       ============================================================ */
+    .ms-hero-visual {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .ms-app-window {
+        width: 100%;
+        max-width: 580px;
+        border-radius: 6px;
+        background: #1b1b1f;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow:
+            0 40px 80px -20px rgba(0, 0, 0, 0.75),
+            0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+        overflow: hidden;
+    }
+
+    .aw-title {
+        height: 36px;
+        display: flex;
+        align-items: center;
+        padding: 0 12px;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.04);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .aw-brand {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        color: #ffffff;
+        white-space: nowrap;
+    }
+
+    .aw-brand .m {
+        width: 14px;
+        height: 14px;
+        border-radius: 2px;
+        background: var(--ms-blue);
+        display: grid;
+        place-items: center;
+    }
+
+    .aw-tabs {
+        display: flex;
+        gap: 2px;
+        flex: 1;
+        justify-content: center;
+        font-size: 10.5px;
+    }
+
+    .aw-tab {
+        padding: 4px 11px;
+        border-radius: 2px;
+        color: rgba(255, 255, 255, 0.55);
+    }
+
+    .aw-tab.on {
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .aw-win {
+        display: flex;
+        gap: 4px;
+        font-size: 9px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .aw-win span {
+        width: 18px;
+        height: 18px;
+        display: grid;
+        place-items: center;
+        border-radius: 2px;
+    }
+
+    .aw-body {
+        padding: 13px;
+        display: flex;
+        flex-direction: column;
+        gap: 11px;
+    }
+
+    .aw-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .aw-path {
+        flex: 1;
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.5);
+        font-family: Consolas, Monaco, monospace;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .aw-chip {
+        font-size: 10px;
+        padding: 5px 11px;
+        border-radius: 2px;
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.75);
+        white-space: nowrap;
+    }
+
+    .aw-chip.accent {
+        background: var(--ms-blue);
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    .aw-feature {
+        border-radius: 4px;
+        padding: 14px 16px;
+        background: linear-gradient(115deg, rgba(0, 103, 184, 0.28), rgba(0, 164, 239, 0.18));
+        border: 1px solid rgba(0, 120, 212, 0.35);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+    }
+
+    .aw-fl {
+        font-size: 9.5px;
+        color: rgba(255, 255, 255, 0.6);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+
+    .aw-fn {
+        font-size: 19px;
+        font-weight: 700;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+    }
+
+    .aw-launch {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 8px 18px;
+        border-radius: 2px;
+        background: #ffffff;
+        color: var(--ms-blue);
+        white-space: nowrap;
+    }
+
+    .aw-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+    }
+
+    .aw-card {
+        border-radius: 3px;
+        padding: 11px 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        text-align: center;
+    }
+
+    .aw-cv {
+        font-size: 12.5px;
+        font-weight: 700;
+        color: #7dd3fc;
+        margin-bottom: 3px;
+    }
+
+    .aw-cn {
+        font-size: 8px;
+        color: rgba(255, 255, 255, 0.5);
+        margin-bottom: 7px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .aw-cb {
+        display: flex;
+        gap: 3px;
+        justify-content: center;
+    }
+
+    .aw-mini {
+        font-size: 8px;
+        padding: 3px 9px;
+        border-radius: 2px;
+        background: #ffffff;
+        color: var(--ms-blue);
+        font-weight: 600;
+    }
+
+    .aw-mini.alt {
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.75);
+    }
+
+    .aw-status {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 9px 13px;
+        border-top: 1px solid rgba(255, 255, 255, 0.07);
+        background: rgba(255, 255, 255, 0.02);
+        font-size: 9.5px;
+        color: rgba(255, 255, 255, 0.5);
+        font-family: Consolas, Monaco, monospace;
+    }
+
+    .aw-sl { display: flex; gap: 14px; }
+
+    .aw-status b { color: rgba(255, 255, 255, 0.9); }
+
+    .aw-live {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: #4ade80;
+    }
+
+    .aw-live i {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: #4ade80;
+        box-shadow: 0 0 6px #4ade80;
+    }
+
+    /* ============================================================
+       通用区块
+       ============================================================ */
+    .ms-section {
+        padding: 72px 5%;
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+
+    .ms-section-narrow {
+        max-width: 1200px;
+    }
+
+    .ms-section-alt {
+        background: var(--ms-bg-alt);
+    }
+
+    .ms-section-head {
+        margin-bottom: 42px;
+    }
+
+    .ms-section-head h2 {
+        font-size: clamp(26px, 3vw, 36px);
+        font-weight: 600;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+        color: var(--ms-text);
+        margin-bottom: 12px;
+    }
+
+    .ms-section-head p {
+        font-size: 16px;
+        line-height: 1.55;
+        color: var(--ms-text-secondary);
+        max-width: 720px;
+    }
+
+    .ms-section-head.center {
+        text-align: center;
+    }
+
+    .ms-section-head.center p {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* ============================================================
+       卡片网格（Microsoft 首页风格）
+       ============================================================ */
+    .ms-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+    }
+
+    .ms-card {
+        display: flex;
+        flex-direction: column;
+        background: #ffffff;
+        border: 1px solid var(--ms-border);
+        border-radius: 4px;
+        overflow: hidden;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        cursor: pointer;
+    }
+
+    .ms-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+    }
+
+    .ms-card-img {
+        height: 158px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .ms-card-img.g1 { background: linear-gradient(135deg, #0067b8 0%, #00a4ef 100%); }
+    .ms-card-img.g2 { background: linear-gradient(135deg, #107c10 0%, #7fba00 100%); }
+    .ms-card-img.g3 { background: linear-gradient(135deg, #d13438 0%, #ff8c00 100%); }
+    .ms-card-img.g4 { background: linear-gradient(135deg, #5c2d91 0%, #a78bfa 100%); }
+
+    .ms-card-img::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(255,255,255,0.09) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.09) 1px, transparent 1px);
+        background-size: 22px 22px;
+        opacity: 0.55;
+    }
+
+    .ms-card-img svg {
+        position: relative;
+        z-index: 1;
+        color: #ffffff;
+    }
+
+    .ms-card-body {
+        padding: 22px 22px 26px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .ms-card-body h3 {
+        font-size: 19px;
+        font-weight: 600;
+        line-height: 1.25;
+        letter-spacing: -0.01em;
+        color: var(--ms-text);
+        margin-bottom: 10px;
+    }
+
+    .ms-card-body p {
+        font-size: 14px;
+        line-height: 1.55;
+        color: var(--ms-text-secondary);
+        margin-bottom: 18px;
+        flex: 1;
+    }
+
+    .ms-card-body .ms-link {
+        font-size: 14px;
+        align-self: flex-start;
+    }
+
+    /* ============================================================
+       两栏横幅（Microsoft 官网标准样式）
+       ============================================================ */
+    .ms-banner {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        background: var(--ms-bg-alt);
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 0 auto;
+        max-width: 1600px;
+        min-height: 440px;
+    }
+
+    .ms-banner-content {
+        padding: 64px 56px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .ms-banner-content .tag {
+        display: inline-block;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--ms-blue);
+        margin-bottom: 16px;
+    }
+
+    .ms-banner-content h2 {
+        font-size: clamp(24px, 2.8vw, 34px);
+        font-weight: 600;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+        margin-bottom: 16px;
+    }
+
+    .ms-banner-content p {
+        font-size: 15.5px;
+        line-height: 1.6;
+        color: var(--ms-text-secondary);
+        margin-bottom: 26px;
+        max-width: 440px;
+    }
+
+    .ms-banner-content .actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .ms-banner-visual {
+        position: relative;
+        background: linear-gradient(140deg, #0b1220 0%, #16213e 60%, #0f3460 100%);
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 48px;
+    }
+
+    .ms-banner-visual::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(circle at 30% 30%, rgba(0, 120, 212, 0.4), transparent 55%),
+            radial-gradient(circle at 72% 72%, rgba(0, 194, 209, 0.3), transparent 55%);
+    }
+
+    /* 状态面板 */
+    .ms-panel {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 400px;
+        background: rgba(255, 255, 255, 0.07);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 6px;
+        padding: 22px;
+    }
+
+    .ms-panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 14px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 16px;
+    }
+
+    .ms-panel-title {
+        font-size: 10.5px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .ms-panel-live {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        color: #4ade80;
+    }
+
+    .ms-panel-live i {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #4ade80;
+        box-shadow: 0 0 8px #4ade80;
+    }
+
+    .ms-panel-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 14px;
+    }
+
+    .ms-panel-cell {
+        padding: 13px;
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .ms-panel-cell .k {
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.55);
+        letter-spacing: 0.05em;
+        margin-bottom: 6px;
+    }
+
+    .ms-panel-cell .v {
+        font-size: 21px;
+        font-weight: 700;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .ms-panel-cell .v.blue { color: #7dd3fc; }
+
+    .ms-panel-chart {
+        height: 58px;
+        display: flex;
+        align-items: flex-end;
+        gap: 4px;
+        padding: 10px;
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .ms-panel-bar {
+        flex: 1;
+        background: linear-gradient(180deg, #00a4ef, rgba(0, 164, 239, 0.2));
+        border-radius: 1px 1px 0 0;
+        transform-origin: bottom;
+        animation: barPulse 2.8s ease-in-out infinite;
+    }
+
+    .ms-panel-bar:nth-child(1) { height: 40%; animation-delay: 0s; }
+    .ms-panel-bar:nth-child(2) { height: 65%; animation-delay: 0.15s; }
+    .ms-panel-bar:nth-child(3) { height: 48%; animation-delay: 0.3s; }
+    .ms-panel-bar:nth-child(4) { height: 80%; animation-delay: 0.45s; }
+    .ms-panel-bar:nth-child(5) { height: 55%; animation-delay: 0.6s; }
+    .ms-panel-bar:nth-child(6) { height: 72%; animation-delay: 0.75s; }
+    .ms-panel-bar:nth-child(7) { height: 45%; animation-delay: 0.9s; }
+    .ms-panel-bar:nth-child(8) { height: 88%; animation-delay: 1.05s; }
+
+    @keyframes barPulse {
+        0%, 100% { transform: scaleY(1); opacity: 0.9; }
+        50% { transform: scaleY(1.15); opacity: 1; }
+    }
+
+    /* 安全盾牌 */
+    .ms-shield-box {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+    }
+
+    .ms-shield {
+        position: relative;
+        width: 168px;
+        height: 168px;
+    }
+
+    .ms-shield-ring {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: 2px solid #00a4ef;
+        opacity: 0;
+        animation: ringPulse 3.6s ease-out infinite;
+    }
+
+    .ms-shield-ring:nth-child(2) { animation-delay: 1.2s; }
+    .ms-shield-ring:nth-child(3) { animation-delay: 2.4s; }
+
+    @keyframes ringPulse {
+        0% { opacity: 0; transform: scale(0.45); }
+        45% { opacity: 0.7; }
+        100% { opacity: 0; transform: scale(1.3); }
+    }
+
+    .ms-shield-core {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 78px;
+        height: 78px;
+        border-radius: 50%;
+        background: linear-gradient(140deg, #00a4ef, #0067b8);
+        display: grid;
+        place-items: center;
+        color: #ffffff;
+        box-shadow: 0 12px 40px rgba(0, 164, 239, 0.5);
+    }
+
+    .ms-shield-tags {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .ms-shield-tag {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 5px 12px;
+        border-radius: 2px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: rgba(255, 255, 255, 0.9);
+        font-family: Consolas, Monaco, monospace;
+    }
+
+    /* 更新流程 */
+    .ms-flow {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        max-width: 420px;
+        width: 100%;
+    }
+
+    .ms-flow-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 13px 16px;
+        border-radius: 3px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: background 0.15s ease;
+    }
+
+    .ms-flow-item:hover {
+        background: rgba(255, 255, 255, 0.09);
+    }
+
+    .ms-flow-num {
+        width: 26px;
+        height: 26px;
+        border-radius: 3px;
+        flex-shrink: 0;
+        display: grid;
+        place-items: center;
+        font-size: 11px;
+        font-weight: 700;
+        background: #00a4ef;
+        color: #ffffff;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .ms-flow-body { flex: 1; min-width: 0; }
+
+    .ms-flow-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #ffffff;
+        margin-bottom: 2px;
+    }
+
+    .ms-flow-desc {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.55);
+        font-family: Consolas, Monaco, monospace;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* ============================================================
+       下载区
+       ============================================================ */
+    .ms-dl-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        margin-top: 48px;
+    }
+
+    .ms-dl-card {
+        background: #ffffff;
+        border: 1px solid var(--ms-border);
+        border-radius: 4px;
+        padding: 30px 26px;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .ms-dl-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+    }
+
+    .ms-dl-cat {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--ms-blue);
+        margin-bottom: 14px;
+    }
+
+    .ms-dl-name {
+        font-size: 21px;
+        font-weight: 600;
+        letter-spacing: -0.015em;
+        margin-bottom: 12px;
+    }
+
+    .ms-dl-desc {
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--ms-text-secondary);
+        margin-bottom: 22px;
+        flex: 1;
+    }
+
+    .ms-dl-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--ms-blue);
+        align-self: flex-start;
+    }
+
+    .ms-dl-link:hover {
+        color: var(--ms-blue-dark);
+        text-decoration: underline;
+    }
+
+    .ms-dl-link svg { transition: transform 0.2s ease; }
+    .ms-dl-link:hover svg { transform: translateX(3px); }
+
+    /* ============================================================
+       页脚
+       ============================================================ */
+    .ms-footer {
+        background: var(--ms-bg-alt);
+        padding: 48px 5% 30px;
+        font-size: 12px;
+        color: var(--ms-text-secondary);
+        margin-top: 40px;
+    }
+
+    .ms-footer-inner {
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+
+    .ms-footer-cols {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 32px;
+        margin-bottom: 36px;
+    }
+
+    .ms-footer-col h4 {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ms-text);
+        margin-bottom: 16px;
+    }
+
+    .ms-footer-col ul {
+        list-style: none;
+    }
+
+    .ms-footer-col li {
+        margin-bottom: 10px;
+    }
+
+    .ms-footer-col a {
+        color: var(--ms-text-secondary);
+        font-size: 12px;
+        transition: color 0.15s;
+    }
+
+    .ms-footer-col a:hover {
+        color: var(--ms-text);
+        text-decoration: underline;
+    }
+
+    .ms-footer-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        padding-top: 22px;
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .ms-footer-lang {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: var(--ms-text-secondary);
+        padding: 4px 0;
+        transition: color 0.15s;
+    }
+
+    .ms-footer-lang:hover {
+        color: var(--ms-text);
+        text-decoration: underline;
+    }
+
+    .ms-footer-links {
+        display: flex;
+        gap: 22px;
+        flex-wrap: wrap;
+    }
+
+    .ms-footer-links a {
+        color: var(--ms-text-secondary);
+        font-size: 12px;
+        transition: color 0.15s;
+    }
+
+    .ms-footer-links a:hover {
+        color: var(--ms-text);
+        text-decoration: underline;
+    }
+
+    /* ============================================================
+       滚动显现
+       ============================================================ */
+    .reveal {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .reveal.in {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* ============================================================
+       响应式
+       ============================================================ */
+    @media (max-width: 1100px) {
+        .ms-hero-inner {
+            grid-template-columns: 1fr;
+            gap: 48px;
+        }
+        .ms-hero-visual { max-width: 580px; margin: 0 auto; }
+        .ms-grid { grid-template-columns: repeat(2, 1fr); }
+        .ms-dl-grid { grid-template-columns: 1fr; }
+        .ms-footer-cols { grid-template-columns: repeat(3, 1fr); }
+        .ms-banner { grid-template-columns: 1fr; }
+        .ms-banner-visual { min-height: 360px; }
+    }
+
+    @media (max-width: 900px) {
+        .ms-nav-menu { display: none; }
+        .ms-utility-left .ms-text { display: none; }
+        .ms-section { padding: 56px 5%; }
+        .ms-banner-content { padding: 48px 36px; }
+    }
+
+    @media (max-width: 640px) {
+        .ms-utility { padding: 0 20px; }
+        .ms-nav { padding: 0 20px; }
+        .ms-section { padding: 48px 20px; }
+        .ms-hero-inner { padding: 52px 20px; }
+        .ms-grid { grid-template-columns: 1fr; }
+        .ms-footer-cols { grid-template-columns: repeat(2, 1fr); }
+        .aw-grid { grid-template-columns: repeat(2, 1fr); }
+        .aw-tabs { display: none; }
+        .ms-banner-content { padding: 40px 24px; }
+        .ms-banner-visual { padding: 30px; }
+        .ms-hero-meta { gap: 14px; font-size: 12px; }
+        .ms-hero h1 { font-size: 30px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
+        .reveal { opacity: 1; transform: none; }
+    }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     顶部实用栏
+     ============================================================ -->
+<div class="ms-utility">
+    <div class="ms-utility-inner">
+        <div class="ms-utility-left">
+            <span class="ms-logo-mark">
+                <span></span><span></span><span></span><span></span>
+            </span>
+            <a href="#" class="ms-text">Microsoft</a>
+        </div>
+        <div class="ms-utility-right">
+            <a href="#">网站地图</a>
+            <a href="#">反馈</a>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     主导航
+     ============================================================ -->
+<nav class="ms-nav" id="msNav">
+    <div class="ms-nav-inner">
+        <a href="#" class="ms-nav-logo">
+            <span class="brand-mark">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 17V7h16v10z"/>
+                </svg>
+            </span>
+            <span class="brand-text">SnakeLauncher</span>
+        </a>
+
+        <div class="ms-nav-menu">
+            <a href="#features" class="active">功能</a>
+            <a href="#realtime">实时通信</a>
+            <a href="#security">安全</a>
+            <a href="#update">更新</a>
+            <a href="#download">下载</a>
+        </div>
+
+        <div class="ms-nav-right">
+            <a href="#" class="ms-nav-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="7"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                搜索
+            </a>
+            <a href="#" class="ms-nav-login">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+                登录
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- ============================================================
+     Hero 横幅
+     ============================================================ -->
+<section class="ms-hero">
+    <div class="ms-hero-inner">
+        <div class="ms-hero-copy">
+            <span class="ms-hero-eyebrow">现已发布 · v4.1.0</span>
+            <h1>贪吃蛇启动器<br>为极致体验而生</h1>
+            <p>统一管理 C# 与 Python 双分支版本。实时通信、纵深反作弊、无锁自更新，一个启动器全部搞定。</p>
+
+            <div class="ms-hero-actions">
+                <a href="#download" class="ms-btn ms-btn-white">立即下载</a>
+                <a href="#features" class="ms-btn ms-btn-secondary">了解更多</a>
+            </div>
+
+            <div class="ms-hero-meta">
+                <span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    .NET Framework 4.8
+                </span>
+                <span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    Windows 10 / 11
+                </span>
+                <span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    免费开源
+                </span>
+            </div>
+        </div>
+
+        <!-- 应用窗口 -->
+        <div class="ms-hero-visual">
+            <div class="ms-app-window">
+                <div class="aw-title">
+                    <div class="aw-brand">
+                        <span class="m">
+                            <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3.6" stroke-linecap="round">
+                                <path d="M4 17V7h16v10z"/>
+                            </svg>
+                        </span>
+                        贪吃蛇启动器
+                    </div>
+                    <div class="aw-tabs">
+                        <span class="aw-tab on">启动</span>
+                        <span class="aw-tab">下载</span>
+                        <span class="aw-tab">数据</span>
+                        <span class="aw-tab">设置</span>
+                        <span class="aw-tab">关于</span>
+                    </div>
+                    <div class="aw-win">
+                        <span>—</span>
+                        <span>✕</span>
+                    </div>
+                </div>
+
+                <div class="aw-body">
+                    <div class="aw-toolbar">
+                        <div class="aw-path">E:\扫描\1.贪吃蛇.py\3.正式版\贪吃蛇.exe</div>
+                        <span class="aw-chip">默认排序</span>
+                        <span class="aw-chip">刷新</span>
+                        <span class="aw-chip accent">手动添加</span>
+                    </div>
+
+                    <div class="aw-feature">
+                        <div>
+                            <div class="aw-fl">最新 EXE 版本</div>
+                            <div class="aw-fn">SnakeGame</div>
+                        </div>
+                        <span class="aw-launch">启动游戏</span>
+                    </div>
+
+                    <div class="aw-grid">
+                        <div class="aw-card">
+                            <div class="aw-cv">SnakeGame</div>
+                            <div class="aw-cn">SnakeGame.exe</div>
+                            <div class="aw-cb"><span class="aw-mini">启动</span><span class="aw-mini alt">详情</span></div>
+                        </div>
+                        <div class="aw-card">
+                            <div class="aw-cv">5.2.3</div>
+                            <div class="aw-cn">贪吃蛇.exe</div>
+                            <div class="aw-cb"><span class="aw-mini">启动</span><span class="aw-mini alt">详情</span></div>
+                        </div>
+                        <div class="aw-card">
+                            <div class="aw-cv">5.2.2</div>
+                            <div class="aw-cn">贪吃蛇.exe</div>
+                            <div class="aw-cb"><span class="aw-mini">启动</span><span class="aw-mini alt">详情</span></div>
+                        </div>
+                        <div class="aw-card">
+                            <div class="aw-cv">5.2.1</div>
+                            <div class="aw-cn">贪吃蛇.exe</div>
+                            <div class="aw-cb"><span class="aw-mini">启动</span><span class="aw-mini alt">详情</span></div>
+                        </div>
+                        <div class="aw-card">
+                            <div class="aw-cv">5.2.0</div>
+                            <div class="aw-cn">贪吃蛇.exe</div>
+                            <div class="aw-cb"><span class="aw-mini">启动</span><span class="aw-mini alt">详情</span></div>
+                        </div>
+                        <div class="aw-card">
+                            <div class="aw-cv">5.1.1</div>
+                            <div class="aw-cn">贪吃蛇.exe</div>
+                            <div class="aw-cb"><span class="aw-mini">启动</span><span class="aw-mini alt">详情</span></div>
+                        </div>
+                        <div class="aw-card">
+                            <div class="aw-cv">5.1.0</div>
+                            <div class="aw-cn">贪吃蛇.exe</div>
+                            <div class="aw-cb"><span class="aw-mini">启动</span><span class="aw-mini alt">详情</span></div>
+                        </div>
+                        <div class="aw-card">
+                            <div class="aw-cv">5.0.5</div>
+                            <div class="aw-cn">贪吃蛇.exe</div>
+                            <div class="aw-cb"><span class="aw-mini">启动</span><span class="aw-mini alt">详情</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="aw-status">
+                    <div class="aw-sl">
+                        <span>FPS: <b>144</b></span>
+                        <span>得分: <b>1280</b></span>
+                        <span>击杀: <b>15</b></span>
+                        <span>模式: <b>classic</b></span>
+                    </div>
+                    <span class="aw-live"><i></i> 已连接</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     功能卡片网格
+     ============================================================ -->
+<section class="ms-section" id="features">
+    <div class="ms-section-head center reveal">
+        <h2>探索 SnakeLauncher 的功能</h2>
+        <p>从版本扫描到实时通信，从反作弊到自更新，覆盖游戏管理链路上的每一个环节。</p>
+    </div>
+
+    <div class="ms-grid">
+        <div class="ms-card reveal">
+            <div class="ms-card-img g1">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7" rx="1"/>
+                    <rect x="14" y="3" width="7" height="7" rx="1"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1"/>
+                    <rect x="14" y="14" width="7" height="7" rx="1"/>
+                </svg>
+            </div>
+            <div class="ms-card-body">
+                <h3>双分支统一管理</h3>
+                <p>C# WPF 版与 Python 版同台管理，自动识别 5 种目录布局，智能解析版本号并自动去重。</p>
+                <a href="#" class="ms-link">了解详细信息</a>
+            </div>
+        </div>
+
+        <div class="ms-card reveal">
+            <div class="ms-card-img g2">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                </svg>
+            </div>
+            <div class="ms-card-body">
+                <h3>500ms 级实时通信</h3>
+                <p>通过 Named Pipe 与游戏建立低延迟双向通道，FPS、得分、击杀数持续上报，状态栏实时渲染。</p>
+                <a href="#realtime" class="ms-link">了解详细信息</a>
+            </div>
+        </div>
+
+        <div class="ms-card reveal">
+            <div class="ms-card-img g3">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+            </div>
+            <div class="ms-card-body">
+                <h3>纵深反作弊体系</h3>
+                <p>静态完整性校验、HMAC 签名验证、行为合理性检测，三层防护。告警不中断游戏进程。</p>
+                <a href="#security" class="ms-link">了解详细信息</a>
+            </div>
+        </div>
+
+        <div class="ms-card reveal">
+            <div class="ms-card-img g4">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 2v6h-6"/>
+                    <path d="M3 12a9 9 0 0 1 15-6.7L21 8"/>
+                    <path d="M3 22v-6h6"/>
+                    <path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>
+                </svg>
+            </div>
+            <div class="ms-card-body">
+                <h3>一键完成的自更新</h3>
+                <p>独立 Updater 进程无锁更新，覆盖前备份到时间戳目录，任何失败自动从备份还原。</p>
+                <a href="#update" class="ms-link">了解详细信息</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     实时通信 Banner
+     ============================================================ -->
+<section class="ms-section" id="realtime" style="padding-top: 0;">
+    <div class="ms-banner reveal" style="margin-left: 0; margin-right: 0;">
+        <div class="ms-banner-content">
+            <span class="tag">实时通信</span>
+            <h2>与游戏，实时同步。</h2>
+            <p>通过 Named Pipe 建立低延迟双向通信通道，游戏内发生的一切都能被启动器感知。FPS、得分、击杀数、模式状态持续上报，无需切换窗口即可查看。</p>
+            <div class="actions">
+                <a href="#download" class="ms-btn ms-btn-primary">立即下载</a>
+                <a href="#" class="ms-link">了解详细信息</a>
+            </div>
+        </div>
+
+        <div class="ms-banner-visual">
+            <div class="ms-panel">
+                <div class="ms-panel-head">
+                    <span class="ms-panel-title">Live Dashboard</span>
+                    <span class="ms-panel-live"><i></i> Connected</span>
+                </div>
+
+                <div class="ms-panel-grid">
+                    <div class="ms-panel-cell">
+                        <div class="k">FPS</div>
+                        <div class="v blue">144</div>
+                    </div>
+                    <div class="ms-panel-cell">
+                        <div class="k">SCORE</div>
+                        <div class="v">1280</div>
+                    </div>
+                    <div class="ms-panel-cell">
+                        <div class="k">KILLS</div>
+                        <div class="v">15</div>
+                    </div>
+                    <div class="ms-panel-cell">
+                        <div class="k">MODE</div>
+                        <div class="v" style="font-size:15px;">classic</div>
+                    </div>
+                </div>
+
+                <div class="ms-panel-chart">
+                    <div class="ms-panel-bar"></div>
+                    <div class="ms-panel-bar"></div>
+                    <div class="ms-panel-bar"></div>
+                    <div class="ms-panel-bar"></div>
+                    <div class="ms-panel-bar"></div>
+                    <div class="ms-panel-bar"></div>
+                    <div class="ms-panel-bar"></div>
+                    <div class="ms-panel-bar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     安全防线 Banner
+     ============================================================ -->
+<section class="ms-section" id="security" style="padding-top: 0;">
+    <div class="ms-banner reveal" style="margin-left: 0; margin-right: 0; direction: rtl;">
+        <div class="ms-banner-content" style="direction: ltr;">
+            <span class="tag">安全防线</span>
+            <h2>三层防护，固若金汤。</h2>
+            <p>从静态完整性到传输安全，再到行为合理性检测。EXE 文件 SHA256 白名单、IPC 消息 HMAC 签名、时间戳防重放、分数增速异常检测，四道关卡守护每一次对局。</p>
+            <div class="actions">
+                <a href="#download" class="ms-btn ms-btn-primary">立即下载</a>
+                <a href="#" class="ms-link">了解详细信息</a>
+            </div>
+        </div>
+
+        <div class="ms-banner-visual" style="direction: ltr;">
+            <div class="ms-shield-box">
+                <div class="ms-shield">
+                    <div class="ms-shield-ring"></div>
+                    <div class="ms-shield-ring"></div>
+                    <div class="ms-shield-ring"></div>
+                    <div class="ms-shield-core">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="ms-shield-tags">
+                    <span class="ms-shield-tag">SHA256</span>
+                    <span class="ms-shield-tag">HMAC</span>
+                    <span class="ms-shield-tag">ANTI-REPLAY</span>
+                    <span class="ms-shield-tag">BEHAVIOR</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     无缝更新 Banner
+     ============================================================ -->
+<section class="ms-section" id="update" style="padding-top: 0;">
+    <div class="ms-banner reveal" style="margin-left: 0; margin-right: 0;">
+        <div class="ms-banner-content">
+            <span class="tag">无缝更新</span>
+            <h2>一次点击，焕然一新。</h2>
+            <p>更新流程被拆分为可观测、可中断、可恢复的独立阶段。独立 Updater 进程从临时目录运行，不锁定安装目录。任何一步失败，已覆盖的文件都会自动从备份还原。</p>
+            <div class="actions">
+                <a href="#download" class="ms-btn ms-btn-primary">立即下载</a>
+                <a href="https://github.com/MMA131845/SnakeLauncherWPF/releases" target="_blank" rel="noopener" class="ms-link">查看更新日志</a>
+            </div>
+        </div>
+
+        <div class="ms-banner-visual">
+            <div class="ms-flow">
+                <div class="ms-flow-item">
+                    <span class="ms-flow-num">01</span>
+                    <div class="ms-flow-body">
+                        <div class="ms-flow-title">等待主程序退出</div>
+                        <div class="ms-flow-desc">WaitForProcessExit · 最长 60s</div>
+                    </div>
+                </div>
+                <div class="ms-flow-item">
+                    <span class="ms-flow-num">02</span>
+                    <div class="ms-flow-body">
+                        <div class="ms-flow-title">清理历史残留</div>
+                        <div class="ms-flow-desc">_backup_* · *.old_*</div>
+                    </div>
+                </div>
+                <div class="ms-flow-item">
+                    <span class="ms-flow-num">03</span>
+                    <div class="ms-flow-body">
+                        <div class="ms-flow-title">解压更新包</div>
+                        <div class="ms-flow-desc">%TEMP%\SnakeLauncherUpdate_xxxxxxxx</div>
+                    </div>
+                </div>
+                <div class="ms-flow-item">
+                    <span class="ms-flow-num">04</span>
+                    <div class="ms-flow-body">
+                        <div class="ms-flow-title">备份并覆盖文件</div>
+                        <div class="ms-flow-desc">_backup_yyyyMMdd_HHmmss/</div>
+                    </div>
+                </div>
+                <div class="ms-flow-item">
+                    <span class="ms-flow-num">05</span>
+                    <div class="ms-flow-body">
+                        <div class="ms-flow-title">启动新版本并清理</div>
+                        <div class="ms-flow-desc">Process.Start · 保留备份供恢复</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     下载区
+     ============================================================ -->
+<section class="ms-section ms-section-narrow" id="download" style="background: var(--ms-bg-alt); max-width: none; padding: 72px 5%;">
+    <div style="max-width: 1200px; margin: 0 auto;">
+        <div class="ms-section-head center reveal">
+            <h2>立即开始使用</h2>
+            <p>下载后即可运行，无需任何配置。启动器会自动扫描本地游戏并引导你完成首次设置。</p>
+        </div>
+
+        <div class="ms-dl-grid">
+            <div class="ms-dl-card reveal">
+                <div class="ms-dl-cat">启动器</div>
+                <div class="ms-dl-name">SnakeLauncherWPF</div>
+                <div class="ms-dl-desc">主程序，包含全部功能模块。需要 .NET Framework 4.8 运行时环境。</div>
+                <a href="https://github.com/MMA131845/SnakeLauncherWPF/releases/latest" target="_blank" rel="noopener" class="ms-dl-link">
+                    下载最新版本
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                </a>
+            </div>
+
+            <div class="ms-dl-card reveal">
+                <div class="ms-dl-cat">游戏 · C# 版</div>
+                <div class="ms-dl-name">SnakeGameWpf</div>
+                <div class="ms-dl-desc">WPF 打造的现代贪吃蛇，五种模式，支持局域网联机对战。</div>
+                <a href="https://github.com/MMA131845/SnakeGameWpf/releases/latest" target="_blank" rel="noopener" class="ms-dl-link">
+                    查看游戏仓库
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                </a>
+            </div>
+
+            <div class="ms-dl-card reveal">
+                <div class="ms-dl-cat">游戏 · Python 版</div>
+                <div class="ms-dl-name">Snake-Game-Python</div>
+                <div class="ms-dl-desc">Pygame 引擎驱动，四种玩法模式，跨平台运行，依赖自动安装。</div>
+                <a href="https://github.com/MMA131845/Snake-Game-Python-Edition-" target="_blank" rel="noopener" class="ms-dl-link">
+                    查看游戏仓库
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     页脚
+     ============================================================ -->
+<footer class="ms-footer">
+    <div class="ms-footer-inner">
+        <div class="ms-footer-cols">
+            <div class="ms-footer-col">
+                <h4>新功能</h4>
+                <ul>
+                    <li><a href="#features">功能特性</a></li>
+                    <li><a href="#realtime">实时通信</a></li>
+                    <li><a href="#security">安全防线</a></li>
+                    <li><a href="#update">无缝更新</a></li>
+                </ul>
+            </div>
+
+            <div class="ms-footer-col">
+                <h4>下载</h4>
+                <ul>
+                    <li><a href="#download">启动器</a></li>
+                    <li><a href="https://github.com/MMA131845/SnakeGameWpf" target="_blank" rel="noopener">C# 版游戏</a></li>
+                    <li><a href="https://github.com/MMA131845/Snake-Game-Python-Edition-" target="_blank" rel="noopener">Python 版游戏</a></li>
+                </ul>
+            </div>
+
+            <div class="ms-footer-col">
+                <h4>开发者</h4>
+                <ul>
+                    <li><a href="https://github.com/MMA131845" target="_blank" rel="noopener">GitHub 主页</a></li>
+                    <li><a href="https://github.com/MMA131845/SnakeLauncherWPF/issues" target="_blank" rel="noopener">反馈问题</a></li>
+                    <li><a href="https://github.com/MMA131845/SnakeLauncherWPF/pulls" target="_blank" rel="noopener">贡献代码</a></li>
+                </ul>
+            </div>
+
+            <div class="ms-footer-col">
+                <h4>社区</h4>
+                <ul>
+                    <li><a href="https://github.com/MMA131845/SnakeLauncherWPF" target="_blank" rel="noopener">GitHub 仓库</a></li>
+                    <li><a href="https://github.com/MMA131845/SnakeLauncherWPF/releases" target="_blank" rel="noopener">更新日志</a></li>
+                    <li><a href="https://github.com/MMA131845/SnakeLauncherWPF/blob/main/LICENSE" target="_blank" rel="noopener">MIT 协议</a></li>
+                </ul>
+            </div>
+
+            <div class="ms-footer-col">
+                <h4>关于</h4>
+                <ul>
+                    <li><a href="#">项目介绍</a></li>
+                    <li><a href="#">技术博客</a></li>
+                    <li><a href="#">联系方式</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="ms-footer-bottom">
+            <a href="#" class="ms-footer-lang">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="9"/>
+                    <path d="M3 12h18"/>
+                    <path d="M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z"/>
+                </svg>
+                简体中文
+            </a>
+
+            <div class="ms-footer-links">
+                <a href="#">隐私与 Cookie</a>
+                <a href="#">使用条款</a>
+                <a href="#">商标</a>
+                <a href="#">© 2026 MEIMAOA</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+(function () {
+    'use strict';
+
+    /* ============================================================
+       1. 主导航滚动阴影
+       ============================================================ */
+    var nav = document.getElementById('msNav');
+    var ticking = false;
+
+    function onScroll() {
+        if (window.scrollY > 6) {
+            nav.classList.add('scrolled');
+        } else {
+            nav.classList.remove('scrolled');
+        }
+        ticking = false;
+    }
+
+    window.addEventListener('scroll', function () {
+        if (!ticking) {
+            requestAnimationFrame(onScroll);
+            ticking = true;
+        }
+    }, { passive: true });
+
+    onScroll();
+
+    /* ============================================================
+       2. 滚动显现
+       ============================================================ */
+    var revealEls = document.querySelectorAll('.reveal');
+
+    if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (!entry.isIntersecting) return;
+                var el = entry.target;
+                var siblings = el.parentNode
+                    ? Array.prototype.indexOf.call(el.parentNode.children, el)
+                    : 0;
+                var delay = Math.min(siblings % 4, 3) * 70;
+                setTimeout(function () { el.classList.add('in'); }, delay);
+                io.unobserve(el);
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        revealEls.forEach(function (el) { io.observe(el); });
+    } else {
+        revealEls.forEach(function (el) { el.classList.add('in'); });
+    }
+
+    /* ============================================================
+       3. 锚点平滑滚动
+       ============================================================ */
+    document.querySelectorAll('a[href^="#"]').forEach(function (link) {
+        link.addEventListener('click', function (e) {
+            var id = link.getAttribute('href');
+            if (!id || id === '#' || id.length < 2) return;
+
+            var target = document.querySelector(id);
+            if (!target) return;
+
+            e.preventDefault();
+            var top = target.getBoundingClientRect().top + window.scrollY - 105;
+            window.scrollTo({ top: top, behavior: 'smooth' });
+        });
+    });
+
+    /* ============================================================
+       4. 导航高亮
+       ============================================================ */
+    var navLinks = document.querySelectorAll('.ms-nav-menu a');
+    var sections = [];
+
+    navLinks.forEach(function (link) {
+        var id = link.getAttribute('href');
+        if (!id || id === '#') return;
+        var sec = document.querySelector(id);
+        if (sec) sections.push({ link: link, sec: sec });
+    });
+
+    function updateActiveNav() {
+        var scrollPos = window.scrollY + 120;
+        var current = null;
+        sections.forEach(function (item) {
+            if (item.sec.offsetTop <= scrollPos) current = item;
+        });
+        navLinks.forEach(function (l) { l.classList.remove('active'); });
+        if (current) current.link.classList.add('active');
+        ticking = false;
+    }
+
+    window.addEventListener('scroll', function () {
+        if (!ticking) {
+            requestAnimationFrame(function () {
+                updateActiveNav();
+                ticking = true;
+            });
+        }
+    }, { passive: true });
+
+    updateActiveNav();
+
+})();
+</script>
+
+</body>
+</html>
