@@ -24,6 +24,25 @@
 
 界面参考鹰角网络（Hypergryph）启动器风格重新设计：无边框大圆角窗口、左侧独立导航栏 + 右侧内容面板分栏、全屏主视觉、底部公告/版本资讯与下载/启动胶囊按钮，并支持浅色模式与自定义背景。
 
+---
+
+## 📸 截图
+
+<div align="center">
+
+<img src="SnakeLauncherWPF/_ui_preview/25-separated-panels.png" alt="深色首页" width="900" />
+
+<img src="SnakeLauncherWPF/_ui_preview/26-light-separated-panels.png" alt="浅色首页" width="900" />
+
+<img src="SnakeLauncherWPF/_ui_preview/02-settings.png" alt="设置" width="900" />
+
+<img src="SnakeLauncherWPF/_ui_preview/22-custom-background-video.png" alt="自定义视频背景" width="900" />
+
+</div>
+
+> 更多截图见 [`SnakeLauncherWPF/_ui_preview/`](SnakeLauncherWPF/_ui_preview)。
+
+---
 ### 项目定位
 
 | 维度 | 描述 |
@@ -59,22 +78,6 @@
   - 每个版本的更新说明、预发布标记、发布日期；
 - **自定义启动器背景**：设置中选择图片（PNG/JPG/JPEG/BMP/GIF/TIF）或视频（MP4/WMV/AVI/MOV/M4V），静音循环播放、最小化暂停，**不叠加白色滤镜 / 压暗层**，保持素材原色；
 - **公告 / 新闻 / 资讯** 三个页签，支持「更多」展开完整更新说明。
-
----
-
-## 📸 截图
-
-| 深色首页 | 浅色首页 |
-| --- | --- |
-| ![首页](SnakeLauncherWPF/_ui_preview/25-separated-panels.png) | ![浅色首页](SnakeLauncherWPF/_ui_preview/26-light-separated-panels.png) |
-
-| 设置 | 自定义视频背景 |
-| --- | --- |
-| ![设置](SnakeLauncherWPF/_ui_preview/02-settings.png) | ![视频背景](SnakeLauncherWPF/_ui_preview/22-custom-background-video.png) |
-
-> 更多截图见 [`SnakeLauncherWPF/_ui_preview/`](SnakeLauncherWPF/_ui_preview)。
-
----
 
 ## 📥 下载
 
