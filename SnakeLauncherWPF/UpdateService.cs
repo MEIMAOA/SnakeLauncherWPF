@@ -54,7 +54,7 @@ namespace SnakeLauncherWPF
         // ============================================================
         // ★ 需要修改的配置
         // ============================================================
-        private const string GitHubOwner = "MMA131845";
+        private const string GitHubOwner = "MEIMAOA";
         private const string GitHubRepo = "SnakeLauncherWPF";
         private const string AssetNameKeyword = "SnakeLauncherWPF";
         private const string MainExeName = "SnakeLauncherWPF.exe";
