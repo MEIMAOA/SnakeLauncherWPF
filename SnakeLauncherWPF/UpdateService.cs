@@ -458,6 +458,10 @@ namespace SnakeLauncherWPF
                     catch { }
                 }
 
+                // 3.2) 去掉从网上下载的压缩包解压后可能残留的“来自 Internet”标记，
+                //      避免 SmartScreen 拦截 Updater 启动导致 Win32 错误 1223（操作已被用户取消）
+                TryRemoveMarkOfTheWeb(updaterTempPath);
+
                 // 4) 把安装目录里的 Updater.exe 重命名为 .old_时间戳
                 try
                 {
@@ -517,7 +521,8 @@ namespace SnakeLauncherWPF
             {
                 FileName = updaterTempPath,
                 Arguments = arguments,
-                UseShellExecute = true,
+                // 不用 ShellExecute：避免 SmartScreen / “操作已被用户取消”(1223)
+                UseShellExecute = false,
                 WorkingDirectory = tempDir,
                 CreateNoWindow = false
             };
@@ -526,6 +531,19 @@ namespace SnakeLauncherWPF
             {
                 Process.Start(psi);
             }
+            catch (System.ComponentModel.Win32Exception wex) when (wex.NativeErrorCode == 740)
+            {
+                // 安装目录需要管理员权限时，退回 ShellExecute 以触发 UAC
+                try
+                {
+                    psi.UseShellExecute = true;
+                    Process.Start(psi);
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidOperationException($"启动更新程序失败: {ex.Message}", ex);
+                }
+            }
             catch (Exception ex)
             {
                 throw new InvalidOperationException($"启动更新程序失败: {ex.Message}", ex);
@@ -533,6 +551,18 @@ namespace SnakeLauncherWPF
 
             Environment.Exit(0);
         }
+
+        /// <summary>删除文件的 Zone.Identifier 数据流（Mark of the Web）。</summary>
+        private static void TryRemoveMarkOfTheWeb(string filePath)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath)) return;
+                File.Delete(filePath + ":Zone.Identifier");
+            }
+            catch { /* 没有该数据流或系统不支持时忽略 */ }
+        }
+
 
         /// <summary>
         /// 清理主程序临时目录中超过 24 小时的更新文件

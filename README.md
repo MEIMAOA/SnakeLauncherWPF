@@ -9,7 +9,7 @@
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-0078D4?style=flat-square&logo=windows)](https://www.microsoft.com/windows)
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/download/dotnet/10.0)
 [![WPF](https://img.shields.io/badge/UI-WPF-68217A?style=flat-square)](https://learn.microsoft.com/dotnet/desktop/wpf/)
-[![Version](https://img.shields.io/badge/version-6.0.0.1-00b7c3?style=flat-square)](https://github.com/MEIMAOA/SnakeLauncherWPF/releases)
+[![Version](https://img.shields.io/badge/version-6.0.0.2-00b7c3?style=flat-square)](https://github.com/MEIMAOA/SnakeLauncherWPF/releases)
 [![License](https://img.shields.io/badge/license-Apache--2.0-00cc6a?style=flat-square)](LICENSE)
 
 [功能特性](#-功能特性) · [截图](#-截图) · [下载](#-下载) · [从源码构建](#-从源码构建) · [更新日志](#-更新日志)
@@ -80,11 +80,13 @@
 
 前往 **[Releases](https://github.com/MEIMAOA/SnakeLauncherWPF/releases)** 下载最新版本（按系统架构选择）：
 
-- `SnakeLauncherWPF_6.0.0.1-Windows64.zip` — Windows x64
-- `SnakeLauncherWPF_6.0.0.1-Windows32.zip` — Windows x86（32 位）
-- `SnakeLauncherWPF_6.0.0.1-WindowsARM64.zip` — Windows on ARM（ARM64）
+- `SnakeLauncherWPF_6.0.0.2-Windows64.zip` — Windows x64
+- `SnakeLauncherWPF_6.0.0.2-Windows32.zip` — Windows x86（32 位）
+- `SnakeLauncherWPF_6.0.0.2-WindowsARM64.zip` — Windows on ARM（ARM64）
 
 压缩包内已包含 **`SnakeLauncherWPF.Updater.exe`**（自更新程序）及其依赖文件（`SnakeLauncherWPF.Updater.dll / .deps.json / .runtimeconfig.json`），可在启动器内检查更新并自主完成替换升级。
+
+> ⚠️ 从 v5.2.0.1 等旧版本升级：旧版内置更新器存在缺陷，请手动下载本压缩包覆盖安装一次；v6.0.0.2 起可正常自更新。
 
 解压后运行 `SnakeLauncherWPF.exe`，需要安装 [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)（三个包均为框架依赖发布，体积约 1 MB）。
 
@@ -124,6 +126,16 @@ dotnet publish SnakeLauncherWPF.Updater/SnakeLauncherWPF.Updater.csproj -c Relea
 ---
 
 ## 🔄 更新日志
+
+### v6.0.0.2（2026-10-24）— 修复自更新失败
+
+- 修复点击更新后提示「启动更新程序失败: 操作已被用户取消」（Win32 1223）：
+  - 启动 Updater 不再走 ShellExecute（避免 SmartScreen 拦截），仅在需要管理员权限时回退 ShellExecute；
+  - 启动前移除临时 Updater.exe 的“来自 Internet”标记（Zone.Identifier）。
+- 修复更新到 78% 左右提示「替换文件失败（SnakeLauncherWPF.Updater.exe）：正由另一进程使用」：
+  - 替换被占用文件时先重命名为 `.old_*` 再写入，并重试；
+  - Updater 自身的 exe/dll 被占用时自动跳过，不再导致整个更新回滚。
+- 从旧版本（如 5.2.0.1）升级：旧版内置更新器无法修复，请手动下载 6.0.0.2 压缩包覆盖安装一次；6.0.0.2 起可正常自更新。
 
 ### v6.0.0.1（2026-10-24）— 紧急修复
 

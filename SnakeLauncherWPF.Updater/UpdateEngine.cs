@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -95,6 +95,7 @@ namespace SnakeLauncherWPF.Updater
 
                 // ========== 4. 覆盖新文件 ==========
                 Report(UpdateStage.CopyingFiles, "正在替换文件...", 0);
+                int skippedUpdaterFiles = 0;
                 foreach (string srcFile in files)
                 {
                     string relPath = srcFile.Substring(extractDir.Length).TrimStart('\\', '/');
@@ -104,19 +105,18 @@ namespace SnakeLauncherWPF.Updater
                     if (!Directory.Exists(dstSubDir))
                         Directory.CreateDirectory(dstSubDir);
 
-                    if (File.Exists(dstFile))
+                    if (!TryReplaceFile(srcFile, dstFile))
                     {
-                        try { File.SetAttributes(dstFile, FileAttributes.Normal); } catch { }
-                    }
+                        // Updater 自身的 exe/dll 可能正被占用（例如从安装目录启动的旧版本），
+                        // 这类文件替换失败时跳过，不能因此让整个启动器更新失败。
+                        if (IsUpdaterOwnFile(relPath))
+                        {
+                            skippedUpdaterFiles++;
+                            continue;
+                        }
 
-                    try
-                    {
-                        File.Copy(srcFile, dstFile, overwrite: true);
-                    }
-                    catch (Exception ex)
-                    {
-                        // 覆盖失败尝试回滚
-                        LastError = $"替换文件失败 ({relPath}): {ex.Message}";
+                        // 其它文件（主程序 / 依赖）替换失败则回滚
+                        LastError = $"替换文件失败 ({relPath}): 文件可能正被占用";
                         TryRollback(backupDir, appDir);
                         return false;
                     }
@@ -127,6 +127,9 @@ namespace SnakeLauncherWPF.Updater
                         $"正在替换文件 ({processed}/{total})...",
                         pct);
                 }
+
+                if (skippedUpdaterFiles > 0)
+                    Debug.WriteLine($"有 {skippedUpdaterFiles} 个 Updater 自身文件因占用被跳过，主程序已更新");
 
                 // ========== 5. 启动新版本 ==========
                 Report(UpdateStage.Launching, "正在启动新版本...", 100);
@@ -181,8 +184,57 @@ namespace SnakeLauncherWPF.Updater
             });
         }
 
-        private static void WaitForProcessExit(string processName, int maxWaitMs)
+        /// <summary>判断是否是 Updater 自身的文件（exe/dll/deps/runtimeconfig）。</summary>
+        private static bool IsUpdaterOwnFile(string relPath)
         {
+            string name = Path.GetFileName(relPath) ?? "";
+            return name.StartsWith("SnakeLauncherWPF.Updater", StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// 替换单个文件：优先直接覆盖；被占用时把旧文件改名后重试，最多 3 次。
+        /// </summary>
+        private static bool TryReplaceFile(string srcFile, string dstFile)
+        {
+            for (int attempt = 0; attempt < 3; attempt++)
+            {
+                try
+                {
+                    if (File.Exists(dstFile))
+                        File.SetAttributes(dstFile, FileAttributes.Normal);
+                    File.Copy(srcFile, dstFile, overwrite: true);
+                    return true;
+                }
+                catch { }
+
+                // 被占用：把旧文件重命名为 .old_*，让新文件可以写入
+                try
+                {
+                    if (File.Exists(dstFile))
+                    {
+                        string oldFile = dstFile + ".old_" + DateTime.Now.ToString("yyyyMMddHHmmssfff");
+                        File.SetAttributes(dstFile, FileAttributes.Normal);
+                        File.Move(dstFile, oldFile);
+                    }
+                }
+                catch { }
+
+                try
+                {
+                    if (File.Exists(dstFile))
+                        File.SetAttributes(dstFile, FileAttributes.Normal);
+                    File.Copy(srcFile, dstFile, overwrite: true);
+                    return true;
+                }
+                catch { }
+
+                Thread.Sleep(300);
+            }
+
+            return false;
+        }
+
+        private static void WaitForProcessExit(string processName, int maxWaitMs)        {
             int waited = 0;
             const int intervalMs = 300;
 
