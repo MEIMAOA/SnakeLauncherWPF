@@ -1200,7 +1200,7 @@ namespace SnakeLauncherWPF
                 row.Background = SafeFindBrush("ButtonHoverBackgroundBrush");
             row.MouseLeave += (s, e) =>
             {
-                if ((string)row.Tag != _repoDocsCurrentFile)
+                if ((row.Tag as GitHubRepoFile)?.Name != _repoDocsCurrentFile)
                     row.Background = Brushes.Transparent;
             };
             row.MouseLeftButtonUp += async (s, e) =>

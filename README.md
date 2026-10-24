@@ -9,7 +9,7 @@
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-0078D4?style=flat-square&logo=windows)](https://www.microsoft.com/windows)
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/download/dotnet/10.0)
 [![WPF](https://img.shields.io/badge/UI-WPF-68217A?style=flat-square)](https://learn.microsoft.com/dotnet/desktop/wpf/)
-[![Version](https://img.shields.io/badge/version-6.0.0-00b7c3?style=flat-square)](https://github.com/MEIMAOA/SnakeLauncherWPF/releases)
+[![Version](https://img.shields.io/badge/version-6.0.0.1-00b7c3?style=flat-square)](https://github.com/MEIMAOA/SnakeLauncherWPF/releases)
 [![License](https://img.shields.io/badge/license-Apache--2.0-00cc6a?style=flat-square)](LICENSE)
 
 [功能特性](#-功能特性) · [截图](#-截图) · [下载](#-下载) · [从源码构建](#-从源码构建) · [更新日志](#-更新日志)
@@ -80,9 +80,9 @@
 
 前往 **[Releases](https://github.com/MEIMAOA/SnakeLauncherWPF/releases)** 下载最新版本（按系统架构选择）：
 
-- `SnakeLauncherWPF_6.0.0-Windows64.zip` — Windows x64
-- `SnakeLauncherWPF_6.0.0-Windows32.zip` — Windows x86（32 位）
-- `SnakeLauncherWPF_6.0.0-WindowsARM64.zip` — Windows on ARM（ARM64）
+- `SnakeLauncherWPF_6.0.0.1-Windows64.zip` — Windows x64
+- `SnakeLauncherWPF_6.0.0.1-Windows32.zip` — Windows x86（32 位）
+- `SnakeLauncherWPF_6.0.0.1-WindowsARM64.zip` — Windows on ARM（ARM64）
 
 解压后运行 `SnakeLauncherWPF.exe`，需要安装 [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)（三个包均为框架依赖发布，体积约 1 MB）。
 
@@ -116,8 +116,13 @@ dotnet publish SnakeLauncherWPF/SnakeLauncherWPF.csproj -c Release -r win-x64 --
 
 ## 🔄 更新日志
 
-### v6.0.0（2026-10-24）
+### v6.0.0.1（2026-10-24）— 紧急修复
 
+- 修复「仓库文档」面板中，鼠标移出 .md 文件行时崩溃的问题：
+  `InvalidCastException: 无法将类型 'GitHubRelease' 的对象强制转换为类型 'System.String'`（文件行 `Tag` 保存的是 `GitHubRepoFile`，却被强转为 `string`）；
+- 版本号更新至 6.0.0.1。
+
+### v6.0.0（2026-10-24）
 - **UI 重构**：参考鹰角网络启动器重新布局，无边框大圆角窗口 + 左侧独立导航栏 / 右侧内容面板分栏；
 - **启动流畅化**：移除启动画面与 3 秒等待，改为直接启动 + 1 秒整体渐入；关闭 1 秒渐出；
 - **左右分栏**：面板间距/外框统一 12px，内面板圆角 R=20 与窗口 R=32 同心，无描边线条；
