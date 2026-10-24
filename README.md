@@ -43,6 +43,7 @@
 > 更多截图见 [`SnakeLauncherWPF/_ui_preview/`](SnakeLauncherWPF/_ui_preview)。
 
 ---
+
 ### 项目定位
 
 | 维度 | 描述 |
