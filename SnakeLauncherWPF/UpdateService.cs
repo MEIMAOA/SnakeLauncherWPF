@@ -444,6 +444,20 @@ namespace SnakeLauncherWPF
                     catch { }
                 }
 
+                // 3.1) 复制 Updater 的运行时文件（.NET 版本需要 deps.json / runtimeconfig.json）
+                string updaterBaseName = Path.GetFileNameWithoutExtension(UpdaterExeName);
+                foreach (var suffix in new[] { ".deps.json", ".runtimeconfig.json" })
+                {
+                    try
+                    {
+                        string runtimeFile = updaterBaseName + suffix;
+                        string src = Path.Combine(appDir, runtimeFile);
+                        if (File.Exists(src))
+                            File.Copy(src, Path.Combine(tempDir, runtimeFile), overwrite: true);
+                    }
+                    catch { }
+                }
+
                 // 4) 把安装目录里的 Updater.exe 重命名为 .old_时间戳
                 try
                 {

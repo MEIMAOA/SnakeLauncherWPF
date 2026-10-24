@@ -15,3 +15,5 @@
 - SnakeLauncherWPF_6.0.0.1-WindowsARM64.zip（Windows on ARM）
 
 以上均为框架依赖发布，解压后运行 SnakeLauncherWPF.exe，需要安装 .NET 10 Desktop Runtime。
+## 压缩包内容
+- 已包含 `SnakeLauncherWPF.Updater.exe` 自更新程序及其依赖（.dll / .deps.json / .runtimeconfig.json），可直接在启动器内检查并安装更新。

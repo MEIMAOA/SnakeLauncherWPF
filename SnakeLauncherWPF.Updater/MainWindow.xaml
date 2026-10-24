@@ -1,0 +1,173 @@
+<Window x:Class="SnakeLauncherWPF.Updater.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="启动器更新"
+        Height="340" Width="540"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        ShowInTaskbar="True"
+        Topmost="True"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True">
+
+    <Grid Margin="14">
+        <!-- 阴影层 -->
+        <Border CornerRadius="26" Background="#00000000" Opacity="0.35">
+            <Border.Effect>
+                <DropShadowEffect ShadowDepth="10" BlurRadius="40" Opacity="0.55"
+                                  Color="{DynamicResource ShadowColor}"/>
+            </Border.Effect>
+        </Border>
+
+        <!-- 玻璃主体 -->
+        <Border CornerRadius="26" BorderThickness="1"
+                Background="{DynamicResource GlassBackgroundBrush}"
+                BorderBrush="{DynamicResource GlassBorderBrush}">
+            <Grid>
+                <!-- 内部彩色光斑 -->
+                <Grid ClipToBounds="True">
+                    <Ellipse Width="280" Height="280"
+                             HorizontalAlignment="Left" VerticalAlignment="Top"
+                             Margin="-120,-120,0,0"
+                             Fill="{DynamicResource Blob1Brush}">
+                        <Ellipse.Effect>
+                            <BlurEffect Radius="100"/>
+                        </Ellipse.Effect>
+                    </Ellipse>
+                    <Ellipse Width="260" Height="260"
+                             HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                             Margin="0,0,-100,-100"
+                             Fill="{DynamicResource Blob2Brush}">
+                        <Ellipse.Effect>
+                            <BlurEffect Radius="100"/>
+                        </Ellipse.Effect>
+                    </Ellipse>
+                </Grid>
+
+                <!-- 内容 -->
+                <Grid Margin="36,30,36,30">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 顶部标题 -->
+                    <StackPanel Grid.Row="0">
+                        <TextBlock Text="启动器更新"
+                                   FontSize="24"
+                                   FontWeight="Bold"
+                                   FontFamily="Microsoft YaHei UI"
+                                   Foreground="{DynamicResource TitleForegroundBrush}"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Text="SNAKE LAUNCHER UPDATER"
+                                   FontSize="10"
+                                   FontWeight="SemiBold"
+                                   FontFamily="Segoe UI"
+                                   Foreground="{DynamicResource SubtitleForegroundBrush}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,4,0,22"/>
+                    </StackPanel>
+
+                    <!-- 状态文字 -->
+                    <TextBlock x:Name="TxtStatus"
+                               Grid.Row="1"
+                               Text="正在准备更新..."
+                               FontSize="13"
+                               FontFamily="Microsoft YaHei UI"
+                               Foreground="{DynamicResource StatusForegroundBrush}"
+                               HorizontalAlignment="Center"
+                               TextWrapping="Wrap"
+                               TextAlignment="Center"
+                               Margin="0,0,0,14"/>
+
+                    <!-- 中部：进度条 + 百分比 + 错误信息 -->
+                    <StackPanel Grid.Row="2" VerticalAlignment="Top">
+                        <Border x:Name="ProgressTrack"
+                                Height="6"
+                                CornerRadius="3"
+                                Background="{DynamicResource ProgressTrackBrush}">
+                            <Border x:Name="ProgressFill"
+                                    Width="0"
+                                    Height="6"
+                                    CornerRadius="3"
+                                    HorizontalAlignment="Left"
+                                    Background="{DynamicResource ProgressFillBrush}"/>
+                        </Border>
+
+                        <TextBlock x:Name="TxtPercent"
+                                   Text="0%"
+                                   FontSize="11"
+                                   FontFamily="Segoe UI"
+                                   Foreground="{DynamicResource PercentForegroundBrush}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,8,0,0"/>
+
+                        <TextBlock x:Name="TxtError"
+                                   Text=""
+                                   FontSize="12"
+                                   FontFamily="Microsoft YaHei UI"
+                                   Foreground="{DynamicResource ErrorForegroundBrush}"
+                                   TextWrapping="Wrap"
+                                   TextAlignment="Center"
+                                   Margin="0,16,0,0"
+                                   Visibility="Collapsed"/>
+                    </StackPanel>
+
+                    <!-- 底部按钮（失败时才显示） -->
+                    <StackPanel x:Name="BottomButtons"
+                                Grid.Row="3"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                Visibility="Collapsed"
+                                Margin="0,10,0,0">
+                        <!-- 重试按钮：主色 -->
+                        <Button x:Name="BtnRetry"
+                                Content="重试"
+                                Width="100" Height="34"
+                                Margin="0,0,10,0"
+                                Cursor="Hand"
+                                Click="BtnRetry_Click">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{DynamicResource ProgressFillBrush}"
+                                            CornerRadius="6">
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                            <Button.Foreground>
+                                <DynamicResource ResourceKey="PrimaryButtonForegroundBrush"/>
+                            </Button.Foreground>
+                        </Button>
+
+                        <!-- 关闭按钮：中性色 -->
+                        <Button x:Name="BtnClose"
+                                Content="关闭"
+                                Width="100" Height="34"
+                                Cursor="Hand"
+                                Click="BtnClose_Click">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{DynamicResource SecondaryButtonBackgroundBrush}"
+                                            CornerRadius="6">
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                            <Button.Foreground>
+                                <DynamicResource ResourceKey="SecondaryButtonForegroundBrush"/>
+                            </Button.Foreground>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

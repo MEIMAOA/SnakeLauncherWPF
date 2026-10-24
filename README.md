@@ -84,6 +84,8 @@
 - `SnakeLauncherWPF_6.0.0.1-Windows32.zip` — Windows x86（32 位）
 - `SnakeLauncherWPF_6.0.0.1-WindowsARM64.zip` — Windows on ARM（ARM64）
 
+压缩包内已包含 **`SnakeLauncherWPF.Updater.exe`**（自更新程序）及其依赖文件（`SnakeLauncherWPF.Updater.dll / .deps.json / .runtimeconfig.json`），可在启动器内检查更新并自主完成替换升级。
+
 解压后运行 `SnakeLauncherWPF.exe`，需要安装 [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)（三个包均为框架依赖发布，体积约 1 MB）。
 
 首次启动会在程序目录生成 `launcher_config.json`（本地配置，不会提交到仓库）。
@@ -110,6 +112,13 @@ dotnet build -c Release
 
 ```powershell
 dotnet publish SnakeLauncherWPF/SnakeLauncherWPF.csproj -c Release -r win-x64 --self-contained false -o dist/win-x64
+```
+
+构建自更新程序（发布 zip 时需与主程序一起打包）：
+
+```powershell
+dotnet publish SnakeLauncherWPF.Updater/SnakeLauncherWPF.Updater.csproj -c Release -r win-x64 --self-contained false -o dist/updater-win-x64
+# 将 SnakeLauncherWPF.Updater.exe/.dll/.deps.json/.runtimeconfig.json 复制到主程序输出目录后一起压缩
 ```
 
 ---
