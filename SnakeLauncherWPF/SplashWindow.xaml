@@ -2,24 +2,178 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="启动器"
-        Height="270" Width="480"
+        Height="252" Width="468"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
-        ShowInTaskbar="False">
-    <Border Background="{DynamicResource CardBackgroundBrush}"
-            CornerRadius="16"
-            Padding="40"
-            BorderBrush="{DynamicResource CardBorderBrush}"
-            BorderThickness="1"
-            Effect="{DynamicResource DropShadowEffect}">
-        <TextBlock Text="贪吃蛇启动器"
-                   FontSize="28"
-                   FontWeight="Bold"
-                   Foreground="{DynamicResource AccentBrush}"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center" />
-    </Border>
+        ShowInTaskbar="False"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        TextOptions.TextFormattingMode="Ideal">
+
+    <!--
+        ★ 启动画面 · 鹰角式深色玻璃
+        · 与主窗口同一套外壳色（固定深色），强调色点睛
+        · 入场只动画 opacity + scale(0.98→1)，200–240ms ease-out
+        · 进度条为"不确定进度"，ease-in-out 往返
+    -->
+    <Grid Margin="18">
+        <!-- 软阴影层 -->
+        <Border CornerRadius="28" Background="#000000" Opacity="0">
+            <Border.Effect>
+                <DropShadowEffect ShadowDepth="8" BlurRadius="38" Opacity="0.45" Color="#000000"/>
+            </Border.Effect>
+        </Border>
+
+        <!-- 卡片本体 -->
+        <Border x:Name="SplashCard"
+                CornerRadius="28"
+                BorderThickness="1"
+                Background="{StaticResource ShellWindowBrush}"
+                BorderBrush="{StaticResource ShellHairlineBrush}"
+                Opacity="0"
+                RenderTransformOrigin="0.5,0.5">
+            <Border.RenderTransform>
+                <ScaleTransform x:Name="SplashScale" ScaleX="0.98" ScaleY="0.98"/>
+            </Border.RenderTransform>
+
+            <Grid ClipToBounds="True">
+                <Grid.Clip>
+                    <RectangleGeometry Rect="0,0,432,216" RadiusX="28" RadiusY="28"/>
+                </Grid.Clip>
+
+                <!-- 背景氛围：强调色光晕 + 点阵 -->
+                <Ellipse Width="260" Height="260" HorizontalAlignment="Right" VerticalAlignment="Top"
+                         Margin="0,-120,-60,0" Fill="{DynamicResource AccentBrush}" Opacity="0.16">
+                    <Ellipse.Effect>
+                        <BlurEffect Radius="70"/>
+                    </Ellipse.Effect>
+                </Ellipse>
+                <Rectangle Fill="{StaticResource DotGridBrush}" Opacity="0.35">
+                    <Rectangle.OpacityMask>
+                        <LinearGradientBrush StartPoint="1,0" EndPoint="0,1">
+                            <GradientStop Color="#88FFFFFF" Offset="0"/>
+                            <GradientStop Color="#00FFFFFF" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Rectangle.OpacityMask>
+                </Rectangle>
+                <Path Data="M -20,190 C 90,150 120,90 210,104 C 300,118 320,170 450,120"
+                      Stroke="{DynamicResource AccentBrush}" StrokeThickness="2.4" Opacity="0.55"
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+
+                <Grid Margin="26,22,26,20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 品牌标记 -->
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <Grid Width="46" Height="46">
+                            <Ellipse Width="46" Height="46" Stroke="{DynamicResource AccentBrush}"
+                                     StrokeThickness="1.8" Opacity="0.9"/>
+                            <Path Data="M 29,15 C 29,10.5 23.5,9 19.6,11.2 C 15.6,13.5 16.5,18 21,19.9 C 25.5,21.8 27,26.4 23.2,29.4 C 19.4,32.4 13.4,31 11.8,27.2"
+                                  Stroke="{DynamicResource AccentBrush}" StrokeThickness="2.6"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                            <Ellipse Width="4" Height="4" Fill="{DynamicResource AccentBrush}"
+                                     HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,13,11,0"/>
+                        </Grid>
+                        <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
+                            <TextBlock x:Name="TxtSplashTitle"
+                                       Text="贪吃蛇启动器"
+                                       FontSize="20"
+                                       FontWeight="SemiBold"
+                                       FontFamily="{DynamicResource AppFontFamily}"
+                                       Foreground="{StaticResource ShellTextBrush}"/>
+                            <TextBlock x:Name="TxtSplashSubtitle"
+                                       Text="SNAKE LAUNCHER"
+                                       FontSize="10"
+                                       FontWeight="SemiBold"
+                                       FontFamily="{DynamicResource DisplayFontFamily}"
+                                       Foreground="{StaticResource ShellTextDimBrush}"
+                                       Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- 不确定进度条 -->
+                    <Border Grid.Row="1" Height="3" CornerRadius="2"
+                            Background="{StaticResource SplashProgressTrackBrush}"
+                            Margin="0,26,0,0">
+                        <Border x:Name="LoadingBar"
+                                Width="86" Height="3"
+                                CornerRadius="2"
+                                HorizontalAlignment="Left"
+                                Background="{DynamicResource AccentBrush}">
+                            <Border.RenderTransform>
+                                <TranslateTransform x:Name="LoadingTransform" X="-86"/>
+                            </Border.RenderTransform>
+                        </Border>
+                    </Border>
+
+                    <!-- 状态文字 -->
+                    <TextBlock x:Name="TxtSplashStatus"
+                               Grid.Row="2"
+                               Text="正在启动…"
+                               FontFamily="{DynamicResource AppFontFamily}"
+                               FontSize="11"
+                               Foreground="{StaticResource ShellTextFaintBrush}"
+                               Margin="0,10,0,0"/>
+
+                    <TextBlock x:Name="TxtSplashVersion"
+                               Grid.Row="3"
+                               Text="OFFICIAL  /  v6.0.0"
+                               FontFamily="{DynamicResource MonoFontFamily}"
+                               FontSize="9"
+                               Foreground="{StaticResource ShellTextFaintBrush}"
+                               HorizontalAlignment="Right"
+                               Margin="0,10,0,0"/>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="Window.Loaded">
+            <BeginStoryboard>
+                <Storyboard>
+                    <!-- 入场：200ms 淡入 + 240ms 轻微放大（ease-out） -->
+                    <DoubleAnimation Storyboard.TargetName="SplashCard"
+                                     Storyboard.TargetProperty="Opacity"
+                                     From="0" To="1" Duration="0:0:0.2">
+                        <DoubleAnimation.EasingFunction>
+                            <CubicEase EasingMode="EaseOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                    <DoubleAnimation Storyboard.TargetName="SplashScale"
+                                     Storyboard.TargetProperty="ScaleX"
+                                     From="0.98" To="1" Duration="0:0:0.24">
+                        <DoubleAnimation.EasingFunction>
+                            <CubicEase EasingMode="EaseOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                    <DoubleAnimation Storyboard.TargetName="SplashScale"
+                                     Storyboard.TargetProperty="ScaleY"
+                                     From="0.98" To="1" Duration="0:0:0.24">
+                        <DoubleAnimation.EasingFunction>
+                            <CubicEase EasingMode="EaseOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+
+                    <!-- 不确定进度：往返滑动 -->
+                    <DoubleAnimation Storyboard.TargetName="LoadingTransform"
+                                     Storyboard.TargetProperty="X"
+                                     From="-86" To="380" Duration="0:0:1.6"
+                                     RepeatBehavior="Forever">
+                        <DoubleAnimation.EasingFunction>
+                            <CubicEase EasingMode="EaseInOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </Window.Triggers>
 </Window>

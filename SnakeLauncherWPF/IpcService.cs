@@ -24,19 +24,28 @@ namespace SnakeLauncherWPF
 
         public static event Action<GameStatsData> StatsReceived;
         public static event Action Disconnected;
+
+        // ★ 新增：检测到作弊时触发
+        public static event Action<string> CheatDetected;
+
+        // ★ 新增：会话追踪器（用于检测分数/击杀异常增长）
+        public static GameSessionTracker SessionTracker { get; } = new GameSessionTracker();
+
         public static bool IsConnected => _server?.IsConnected ?? false;
 
         /// <summary>
-        /// 启动命名管道服务器（带自动重试，解决“管道正在使用”和“无法访问关闭的管道”问题）
+        /// 启动命名管道服务器（带自动重试，解决"管道正在使用"和"无法访问关闭的管道"问题）
         /// </summary>
         public static async Task StartAsync()
         {
+            // ★ 每次启动会话重置追踪器
+            SessionTracker.Reset();
+
             int retryCount = 3;
             for (int i = 0; i < retryCount; i++)
             {
                 try
                 {
-                    // 安全清理残留资源
                     Stop();
 
                     _server = new NamedPipeServerStream(
@@ -48,16 +57,14 @@ namespace SnakeLauncherWPF
                     );
 
                     await _server.WaitForConnectionAsync();
-                    break; // 连接成功，跳出重试循环
+                    break;
                 }
                 catch (IOException ex) when (ex.Message.Contains("正在使用"))
                 {
-                    // 管道仍被占用，等待后重试
                     await Task.Delay(1000 * (i + 1));
                 }
                 catch (Exception ex) when (ex is ObjectDisposedException || ex.Message.Contains("关闭"))
                 {
-                    // 管道意外关闭，等待后重试
                     Stop();
                     await Task.Delay(500);
                 }
@@ -72,13 +79,12 @@ namespace SnakeLauncherWPF
             if (_server == null || !_server.IsConnected)
             {
                 Stop();
-                return; // 重试耗尽，静默退出，不弹框
+                return;
             }
 
             _reader = new StreamReader(_server, Encoding.UTF8);
             _cts = new CancellationTokenSource();
 
-            // 后台持续读取
             _ = Task.Run(async () =>
             {
                 try
@@ -96,7 +102,33 @@ namespace SnakeLauncherWPF
 
                         if (line == null) break;
 
-                        var stats = ParseLine(line);
+                        // ============================================================
+                        // ★ 反作弊：先校验签名与时间戳
+                        // ============================================================
+                        if (!AntiCheat.VerifyIpcLine(line, out string cleanPayload, out string reason))
+                        {
+                            string capturedReason = reason;
+                            Application.Current?.Dispatcher?.Invoke(() =>
+                            {
+                                try { CheatDetected?.Invoke(capturedReason); } catch { }
+                            });
+                            continue;
+                        }
+
+                        var stats = ParseLine(cleanPayload);
+
+                        // ★ 追踪数据合理性
+                        long ts = ExtractTimestamp(cleanPayload);
+                        SessionTracker.Feed(ts, stats.Score, stats.Kills);
+                        if (SessionTracker.IsSuspicious)
+                        {
+                            string why = SessionTracker.SuspiciousReason;
+                            Application.Current?.Dispatcher?.Invoke(() =>
+                            {
+                                try { CheatDetected?.Invoke(why); } catch { }
+                            });
+                        }
+
                         Application.Current.Dispatcher.Invoke(() => StatsReceived?.Invoke(stats));
                     }
                 }
@@ -104,7 +136,7 @@ namespace SnakeLauncherWPF
                 finally
                 {
                     Stop();
-                    Application.Current.Dispatcher.Invoke(() => Disconnected?.Invoke());
+                    Application.Current?.Dispatcher?.Invoke(() => Disconnected?.Invoke());
                 }
             });
         }
@@ -139,22 +171,29 @@ namespace SnakeLauncherWPF
         }
 
         /// <summary>
+        /// ★ 从 payload 中提取时间戳
+        /// </summary>
+        private static long ExtractTimestamp(string payload)
+        {
+            if (string.IsNullOrEmpty(payload)) return 0;
+            int idx = payload.LastIndexOf(",TS:", StringComparison.OrdinalIgnoreCase);
+            if (idx < 0) return 0;
+            if (!long.TryParse(payload.Substring(idx + 4), out long ts)) return 0;
+            return ts;
+        }
+
+        /// <summary>
         /// 停止管道并释放所有资源
         /// </summary>
         public static void Stop()
         {
             _cts?.Cancel();
-            try
-            {
-                _reader?.Dispose();
-            }
-            catch { }
+            try { _reader?.Dispose(); } catch { }
 
             try
             {
                 if (_server != null)
                 {
-                    // 如果服务器已连接，尝试断开连接以避免资源泄漏
                     if (_server.IsConnected)
                     {
                         try { _server.Disconnect(); } catch { }

@@ -1,8 +1,6 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media.Animation;
-using System.Windows.Threading;
 
 namespace SnakeLauncherWPF
 {
@@ -33,33 +31,27 @@ namespace SnakeLauncherWPF
                 Environment.Exit(1);
             };
 
-            // ===== 加载配置并应用主题（先于启动画面） =====
+            // ========== 清理上次更新残留 ==========
+            try
+            {
+                UpdateService.CleanupTempFiles();
+                UpdateService.CleanupUpdaterTempDirs();
+                UpdateService.CleanupOldBackups();
+            }
+            catch { }
+
+            // ===== 加载配置 =====
             var config = ConfigManager.Load();
+
+            // ★ 先应用语言
+            Lang.SetLanguage(config.Language);
+
+            // ===== 应用主题 =====
             ThemeManager.ApplyTheme(config);
 
-            // ===== 显示启动画面（此时资源已更新） =====
-            var splash = new SplashWindow();
-            splash.Show();
-
-            // ===== 延迟3秒后创建主窗口 =====
-            _ = DelayedMainWindow(splash);
-        }
-
-        private async Task DelayedMainWindow(SplashWindow splash)
-        {
-            await Task.Delay(3000); // 展示启动画面3秒
-
-            // 主窗口构造（包含配置、扫描等耗时操作）
+            // ===== 直接创建主窗口（不再显示启动画面 / 3 秒等待） =====
             var mainWindow = new MainWindow();
-
-            // 主窗口加载完成后关闭启动画面（淡出动画）
-            mainWindow.Loaded += (s, args) =>
-            {
-                var fadeOut = new DoubleAnimation(1, 0, TimeSpan.FromSeconds(0.3));
-                fadeOut.Completed += (o, ev) => splash.Close();
-                splash.BeginAnimation(Window.OpacityProperty, fadeOut);
-            };
-
+            MainWindow = mainWindow;
             mainWindow.Show();
         }
     }

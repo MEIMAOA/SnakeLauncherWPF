@@ -1,55 +1,29 @@
-# Prerequisites
-*.d
-
-# Object files
-*.o
-*.ko
-*.obj
-*.elf
-
-# Linker output
-*.ilk
-*.map
-*.exp
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
-
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
-
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
-
-# Debug files
-*.dSYM/
-*.su
-*.idb
+# ---- .NET / Visual Studio ----
+bin/
+obj/
+.vs/
+packages/
+*.user
+*.suo
+*.userosscache
+*.userprefs
+*.cache
 *.pdb
+*.log
 
-# Kernel Module Compile Results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
+# ---- publish / temp ----
+_publish_out/
+dist/
+TestResults/
+*.zip.tmp
 
-# debug information files
-*.dwo
+# ---- OS ----
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# ---- local launcher state (do not commit user data) ----
+launcher_config.json
+game_history.json
+game_stats.json
+SnakeGameDownload/
