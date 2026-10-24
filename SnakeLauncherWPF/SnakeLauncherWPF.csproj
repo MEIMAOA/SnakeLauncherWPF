@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
@@ -45,6 +45,14 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <None Include=".github\upgrades\scenarios\dotnet-version-upgrade\plan.md" />
+    <None Include=".github\upgrades\scenarios\dotnet-version-upgrade\scenario-instructions.md" />
+    <None Include=".github\upgrades\scenarios\dotnet-version-upgrade\tasks.md" />
+    <None Include=".github\upgrades\scenarios\dotnet-version-upgrade\tasks\01-prerequisites\progress-details.md" />
+    <None Include=".github\upgrades\scenarios\dotnet-version-upgrade\tasks\02-sdk-style-conversion\progress-details.md" />
+    <None Include=".github\upgrades\scenarios\dotnet-version-upgrade\tasks\03-desktop-projects\progress-details.md" />
+    <None Include=".github\upgrades\scenarios\dotnet-version-upgrade\tasks\04-solution-validation\progress-details.md" />
+    <None Include=".github\upgrades\scenarios\dotnet-version-upgrade\upgrade-options.md" />
     <EmbeddedResource Include="Resources\SnakeGame_1_0_0.zip" />
     <EmbeddedResource Include="Resources\SnakeGame_1.1.0.zip" />
     <EmbeddedResource Include="Resources\SnakeGame_1.11.0.zip" />

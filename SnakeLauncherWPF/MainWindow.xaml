@@ -977,9 +977,38 @@
             </Setter>
         </Style>
 
+        <!-- 游戏菜单项（三条杠弹出的游戏操作菜单） -->
+        <Style x:Key="GameMenuItemStyle" TargetType="Button">
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource ShellTextBrush}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                CornerRadius="9" Padding="12,0">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background"
+                                        Value="{StaticResource ButtonHoverBackgroundBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- 开始游戏大按钮：强调色药丸，悬停提亮 -->
-        <Style x:Key="StartPillStyle" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+        <Style x:Key="StartPillStyle" TargetType="Border">            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
             <Setter Property="BorderBrush" Value="#33FFFFFF"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="17"/>
@@ -1407,16 +1436,6 @@
                                                    HorizontalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
-                                <Button x:Name="BtnTabDownload" Style="{StaticResource RailNavButton}" Tag="Unselected"
-                                        Click="TabButton_Click" ToolTip="下载">
-                                    <StackPanel>
-                                        <Viewbox Width="20" Height="20" HorizontalAlignment="Center">
-                                            <Path Style="{StaticResource IconStrokePath}" Data="{StaticResource IconDownload}"/>
-                                        </Viewbox>
-                                        <TextBlock x:Name="TxtNavDownload" Text="下载" FontSize="9.5" Margin="0,5,0,0"
-                                                   HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                </Button>
                                 <Button x:Name="BtnTabStats" Style="{StaticResource RailNavButton}" Tag="Unselected"
                                         Click="TabButton_Click" ToolTip="数据">
                                     <StackPanel>
@@ -1633,6 +1652,12 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="56"/>
                                         </Grid.ColumnDefinitions>
+
+                                        <!-- 运行中：灰色遮罩（文字/图标位于其上方） -->
+                                        <Border x:Name="StartPillGreyOverlay" Grid.ColumnSpan="3"
+                                                CornerRadius="17" Background="#E63B3B42"
+                                                Opacity="0" Visibility="Collapsed"
+                                                IsHitTestVisible="False"/>
 
                                         <Border Grid.Column="0" Width="44" Height="44" CornerRadius="22"
                                                 HorizontalAlignment="Center" VerticalAlignment="Center"
@@ -2054,6 +2079,31 @@
                     </Grid>
                 </Border>
             </Border>
+
+            <!-- 开始按钮右侧三条杠菜单 -->
+            <Popup x:Name="GameMenuPopup" Placement="Top"
+                   PlacementTarget="{Binding ElementName=BtnStartMenu}"
+                   StaysOpen="False" AllowsTransparency="True"
+                   VerticalOffset="-10" HorizontalOffset="40">
+                <Border Background="{StaticResource ShellGlassStrongBrush}"
+                        BorderBrush="{StaticResource ShellHairlineBrush}"
+                        BorderThickness="1" CornerRadius="14" Padding="6"
+                        MinWidth="212">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="28" ShadowDepth="8" Opacity="0.55" Color="#000000"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <Button x:Name="BtnMenuGameSettings" Style="{StaticResource GameMenuItemStyle}"
+                                Content="游戏设置" Click="GameMenuSettings_Click"/>
+                        <Button x:Name="BtnMenuShortcut" Style="{StaticResource GameMenuItemStyle}"
+                                Content="添加桌面快捷方式" Click="GameMenuShortcut_Click"/>
+                        <Button x:Name="BtnMenuVerify" Style="{StaticResource GameMenuItemStyle}"
+                                Content="游戏完整性检查" Click="GameMenuVerify_Click"/>
+                        <Button x:Name="BtnMenuClearCache" Style="{StaticResource GameMenuItemStyle}"
+                                Content="清理下载缓存" Click="GameMenuClearCache_Click"/>
+                    </StackPanel>
+                </Border>
+            </Popup>
         </Grid>
     </Border>
 </Window>

@@ -16,5 +16,5 @@ using System.Runtime.InteropServices;
 // 将 ComVisible 设置为 false 将使此程序集中的类型
 // 对 COM 组件不可见。...
 [assembly: ComVisible(false)]
-[assembly: AssemblyVersion("6.0.0.2")]     // ★ 改这里
-[assembly: AssemblyFileVersion("6.0.0.2")] // ★ 改这里
+[assembly: AssemblyVersion("6.0.1.0")]     // ★ 改这里
+[assembly: AssemblyFileVersion("6.0.1.0")] // ★ 改这里

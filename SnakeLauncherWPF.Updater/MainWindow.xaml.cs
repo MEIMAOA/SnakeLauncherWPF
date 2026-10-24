@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 
@@ -66,6 +67,7 @@ namespace SnakeLauncherWPF.Updater
             BottomButtons.Visibility = Visibility.Collapsed;
             TxtError.Visibility = Visibility.Collapsed;
             TxtError.Text = "";
+            TxtHint.Text = "更新期间请勿关闭此窗口";
             ProgressFill.Width = 0;
             TxtPercent.Text = "0%";
 
@@ -173,10 +175,19 @@ namespace SnakeLauncherWPF.Updater
                 TxtError.Text = message;
                 TxtError.Visibility = Visibility.Visible;
                 BottomButtons.Visibility = Visibility.Visible;
+                TxtHint.Text = "更新未完成，可重试或关闭窗口";
 
                 // ★ 进度条变红（深色/浅色都用同一个偏亮的红）
                 ProgressFill.Background = new SolidColorBrush(Color.FromRgb(0xD1, 0x34, 0x38));
             });
+        }
+
+        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                try { DragMove(); } catch { }
+            }
         }
 
         private async void BtnRetry_Click(object sender, RoutedEventArgs e)

@@ -48,5 +48,5 @@ using System.Windows;
 //      生成号
 //      修订号
 //
-[assembly: AssemblyVersion("6.0.0.2")]
-[assembly: AssemblyFileVersion("6.0.0.2")]
+[assembly: AssemblyVersion("6.0.1.0")]
+[assembly: AssemblyFileVersion("6.0.1.0")]

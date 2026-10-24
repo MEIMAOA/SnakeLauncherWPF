@@ -20,7 +20,7 @@ namespace SnakeLauncherWPF
                 if (TxtSplashTitle != null) TxtSplashTitle.Text = Lang.T("Splash.Title");
                 if (TxtSplashSubtitle != null) TxtSplashSubtitle.Text = Lang.T("Splash.Subtitle");
                 if (TxtSplashVersion != null)
-                    TxtSplashVersion.Text = "OFFICIAL  /  v" + UpdateService.GetCurrentVersion().ToString(3);
+                    TxtSplashVersion.Text = "OFFICIAL  /  v" + UpdateService.GetCurrentVersion().ToString();
             }
             catch { }
         }

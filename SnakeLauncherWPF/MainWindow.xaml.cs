@@ -816,6 +816,12 @@ namespace SnakeLauncherWPF
         private List<GitHubRelease> _releaseFeed = new List<GitHubRelease>();
         private bool _releaseFeedLoading;
         private DateTime _releaseFeedLoadedAt = DateTime.MinValue;
+
+        // ★ 游戏更新检测结果
+        private GitHubRelease _latestGameRelease;
+        private GitHubReleaseAsset _latestGameAsset;
+        private Version _latestGameVersion;
+        private bool _gameUpdateAvailable;
         private int _newsTabIndex;
         private Border _releaseNotesOverlay;
         private StackPanel _releaseNotesList;
@@ -842,6 +848,10 @@ namespace SnakeLauncherWPF
 
         private Process _currentGameProcess;
         private DateTime _gameStartTime;
+
+        // ★ 页面切换动画 / 游戏运行状态
+        private int _currentTabIndex = -1;
+        private bool _isGameRunning;
         private System.Windows.Threading.DispatcherTimer _playTimer;
         private System.Windows.Threading.DispatcherTimer _healthCheckTimer;
         private System.Windows.Threading.DispatcherTimer _performanceTimer;
@@ -1683,7 +1693,6 @@ namespace SnakeLauncherWPF
 
                 // 左侧导航（图标下的小字）
                 if (TxtNavLaunch != null) TxtNavLaunch.Text = Lang.T("Tab.Launch");
-                if (TxtNavDownload != null) TxtNavDownload.Text = Lang.T("Tab.Download");
                 if (TxtNavStats != null) TxtNavStats.Text = Lang.T("Tab.Stats");
                 if (TxtNavSettings != null) TxtNavSettings.Text = Lang.T("Tab.Settings");
                 if (TxtNavAbout != null) TxtNavAbout.Text = Lang.T("Tab.About");
@@ -1709,7 +1718,7 @@ namespace SnakeLauncherWPF
                 if (BtnNavLauncher != null) BtnNavLauncher.Content = Lang.T("Home.SettingsNav.Launcher");
                 if (BtnNavAbout != null) BtnNavAbout.Content = Lang.T("Tab.About");
                 if (TxtSettingsVersion != null)
-                    TxtSettingsVersion.Text = "v" + UpdateService.GetCurrentVersion().ToString(3);
+                    TxtSettingsVersion.Text = "v" + UpdateService.GetCurrentVersion().ToString();
 
                 // 版本库排序控件（语言切换时重建，保留"最近 / 最常"排序能力）
                 if (LibrarySortHost != null)
@@ -1726,8 +1735,11 @@ namespace SnakeLauncherWPF
 
                 // 悬停提示
                 if (BtnTabLaunch != null) BtnTabLaunch.ToolTip = Lang.T("Tab.Launch");
-                if (BtnTabDownload != null) BtnTabDownload.ToolTip = Lang.T("Tab.Download");
                 if (BtnTabStats != null) BtnTabStats.ToolTip = Lang.T("Tab.Stats");
+                if (BtnMenuGameSettings != null) BtnMenuGameSettings.Content = Lang.T("Menu.GameSettings");
+                if (BtnMenuShortcut != null) BtnMenuShortcut.Content = Lang.T("Menu.CreateShortcut");
+                if (BtnMenuVerify != null) BtnMenuVerify.Content = Lang.T("Menu.VerifyGame");
+                if (BtnMenuClearCache != null) BtnMenuClearCache.Content = Lang.T("Menu.ClearCache");
                 if (BtnTabSettings != null) BtnTabSettings.ToolTip = Lang.T("Tab.Settings");
                 if (BtnTabAbout != null) BtnTabAbout.ToolTip = Lang.T("Tab.About");
                 if (BtnAllGames != null) BtnAllGames.ToolTip = Lang.T("Home.LibraryTitle");
@@ -1943,10 +1955,9 @@ namespace SnakeLauncherWPF
         private int GetCurrentTabIndex()
         {
             if (BtnTabLaunch?.Tag?.ToString() == "Selected") return 0;
-            if (BtnTabDownload?.Tag?.ToString() == "Selected") return 1;
-            if (BtnTabStats?.Tag?.ToString() == "Selected") return 2;
-            if (BtnTabSettings?.Tag?.ToString() == "Selected") return 3;
-            if (BtnTabAbout?.Tag?.ToString() == "Selected") return 4;
+            if (BtnTabStats?.Tag?.ToString() == "Selected") return 1;
+            if (BtnTabSettings?.Tag?.ToString() == "Selected") return 2;
+            if (BtnTabAbout?.Tag?.ToString() == "Selected") return 3;
             return 0;
         }
 
@@ -2088,6 +2099,7 @@ namespace SnakeLauncherWPF
                         _performanceTimer?.Stop();
                         IpcService.Stop();
                         IpcStatusBar.Visibility = Visibility.Collapsed;
+                        SetGameRunning(false);
                     }
                 }
                 else return;
@@ -2183,6 +2195,7 @@ namespace SnakeLauncherWPF
                 _currentGameProcess.EnableRaisingEvents = true;
                 _currentGameProcess.Exited += OnGameProcessExited;
 
+                SetGameRunning(true);
                 ShowNotification(Lang.T("Game.Launching"));
             }
             catch (Exception ex)
@@ -2526,13 +2539,14 @@ namespace SnakeLauncherWPF
         /// 在所有仓库/发行版中挑选"最新且适配本机"的 Windows 游戏包：
         /// 正式版优先，其次预发布版；同组按版本号从高到低。
         /// </summary>
-        private async Task<(GitHubRelease Release, GitHubReleaseAsset Asset)> FindLatestGameAssetAsync()
+        private async Task<(GitHubRelease Release, GitHubReleaseAsset Asset)> FindLatestGameAssetAsync(bool? preferPython = null)
         {
             string arch = GetPreferredArchitecture();
             var candidates = new List<(GitHubRelease Release, GitHubReleaseAsset Asset)>();
 
             foreach (var repo in GitHubReleaseService.Repos)
             {
+                if (preferPython.HasValue && repo.IsPythonRepo != preferPython.Value) continue;
                 try
                 {
                     var releases = await GitHubReleaseService.GetReleasesAsync(repo);
@@ -2583,15 +2597,29 @@ namespace SnakeLauncherWPF
         }
 
         /// <summary>未检测到游戏时点击"下载游戏"：自动下载并安装最新发布版。</summary>
-        private async Task DownloadAndInstallLatestGameAsync()
+        private async Task DownloadAndInstallLatestGameAsync(bool? preferPython = null)
         {
             if (_autoDownloadBusy) return;
             _autoDownloadBusy = true;
             try
             {
-                SetStartButtonBusy(Lang.T("Home.DownloadGame"), Lang.T("Home.DownloadFetchingSub"));
+                SetStartButtonBusy(_gameUpdateAvailable ? Lang.T("Home.UpdateGame") : Lang.T("Home.DownloadGame"),
+                    Lang.T("Home.DownloadFetchingSub"));
 
-                var (release, asset) = await FindLatestGameAssetAsync();
+                GitHubRelease release;
+                GitHubReleaseAsset asset;
+
+                // 按钮上显示的是哪个版本就安装哪个版本（含预发布），避免"提示 beta 却装了旧正式版"
+                if (_gameUpdateAvailable && _latestGameRelease != null && _latestGameAsset != null
+                    && (!preferPython.HasValue || _latestGameRelease.RepoConfig?.IsPythonRepo == preferPython.Value))
+                {
+                    release = _latestGameRelease;
+                    asset = _latestGameAsset;
+                }
+                else
+                {
+                    (release, asset) = await FindLatestGameAssetAsync(preferPython);
+                }
                 if (asset == null)
                 {
                     ShowDetailPanel(Lang.T("Home.DownloadFailedTitle"),
@@ -2655,6 +2683,9 @@ namespace SnakeLauncherWPF
                 _playTimer.Stop(); _healthCheckTimer.Stop(); _performanceTimer.Stop();
                 IpcService.Stop();
                 IpcStatusBar.Visibility = Visibility.Collapsed;
+
+                // ★ 游戏已退出：恢复开始按钮
+                SetGameRunning(false);
 
                 double minutes = (DateTime.Now - _gameStartTime).TotalMinutes;
                 if (_currentGameProcess != null)
@@ -2931,22 +2962,21 @@ namespace SnakeLauncherWPF
         /// 页面切换进场动画：透明度 0→1 + 上移 8px→0，180ms ease-out。
         /// 只动画 transform/opacity（性能规则），且从 0.96 以上的"可见形态"起步，不出现 scale(0)。
         /// </summary>
-        private void AnimatePageIn()
+        private void AnimatePageIn(FrameworkElement page)
         {
-            if (ContentGrid == null || ContentGrid.Children.Count == 0) return;
-            var page = ContentGrid.Children[0] as FrameworkElement;
             if (page == null) return;
             if (SystemParameters.ClientAreaAnimation == false) { page.Opacity = 1; return; }
 
+            page.BeginAnimation(OpacityProperty, null);
             page.Opacity = 0;
             var tt = new TranslateTransform(0, 8);
             page.RenderTransform = tt;
             var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
 
             page.BeginAnimation(OpacityProperty,
-                new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(180)) { EasingFunction = ease });
+                new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(200)) { EasingFunction = ease });
             tt.BeginAnimation(TranslateTransform.YProperty,
-                new DoubleAnimation(8, 0, TimeSpan.FromMilliseconds(180)) { EasingFunction = ease });
+                new DoubleAnimation(8, 0, TimeSpan.FromMilliseconds(200)) { EasingFunction = ease });
 
             // ★ 卡片/区块依次淡入（20ms 间隔，最多 12 个）：只动画 opacity + transform
             var panel = page as Panel;
@@ -2969,6 +2999,123 @@ namespace SnakeLauncherWPF
             }
         }
 
+        /// <summary>旧页面淡出后从 ContentGrid 移除，实现子页面交叉淡化。</summary>
+        private void FadeOutAndRemove(UIElement element)
+        {
+            if (element == null || ContentGrid == null) return;
+            if (!SystemParameters.ClientAreaAnimation || !(element is FrameworkElement fe))
+            {
+                ContentGrid.Children.Remove(element);
+                return;
+            }
+
+            var fade = new DoubleAnimation(fe.Opacity, 0, TimeSpan.FromMilliseconds(140))
+            { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn } };
+            fade.Completed += (s, e) =>
+            {
+                try { ContentGrid.Children.Remove(element); } catch { }
+            };
+            fe.BeginAnimation(OpacityProperty, fade);
+        }
+
+        /// <summary>子页面整体淡出（返回首页时）。</summary>
+        private void AnimatePagesOut()
+        {
+            if (PagesLayer == null) return;
+            if (!SystemParameters.ClientAreaAnimation)
+            {
+                PagesLayer.BeginAnimation(OpacityProperty, null);
+                PagesLayer.Opacity = 1;
+                PagesLayer.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            var fade = new DoubleAnimation(PagesLayer.Opacity <= 0.01 ? 1 : PagesLayer.Opacity, 0, TimeSpan.FromMilliseconds(150))
+            { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn } };
+            fade.Completed += (s, e) =>
+            {
+                if (_currentTabIndex == 0 && PagesLayer != null)
+                {
+                    PagesLayer.BeginAnimation(OpacityProperty, null);
+                    PagesLayer.Opacity = 1;
+                    PagesLayer.Visibility = Visibility.Collapsed;
+                }
+            };
+            PagesLayer.BeginAnimation(OpacityProperty, fade);
+        }
+
+        /// <summary>子页面整体淡入（从首页进入子页面时）。</summary>
+        private void AnimatePagesIn()
+        {
+            if (PagesLayer == null) return;
+            PagesLayer.BeginAnimation(OpacityProperty, null);
+
+            if (!SystemParameters.ClientAreaAnimation)
+            {
+                PagesLayer.Opacity = 1;
+                return;
+            }
+
+            PagesLayer.Opacity = 0;
+            var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
+            PagesLayer.BeginAnimation(OpacityProperty,
+                new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(220)) { EasingFunction = ease });
+
+            if (PageHost != null)
+            {
+                var tt = PageHost.RenderTransform as TranslateTransform;
+                if (tt == null) { tt = new TranslateTransform(0, 10); PageHost.RenderTransform = tt; }
+                tt.BeginAnimation(TranslateTransform.YProperty,
+                    new DoubleAnimation(10, 0, TimeSpan.FromMilliseconds(240)) { EasingFunction = ease });
+            }
+        }
+
+        /// <summary>首页淡入 + 轻微上移。</summary>
+        private void AnimateHomeIn()
+        {
+            if (HomeLayer == null) return;
+            HomeLayer.BeginAnimation(OpacityProperty, null);
+
+            if (!SystemParameters.ClientAreaAnimation)
+            {
+                HomeLayer.Opacity = 1;
+                return;
+            }
+
+            HomeLayer.Opacity = 0;
+            var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
+            var tt = HomeLayer.RenderTransform as TranslateTransform;
+            if (tt == null) { tt = new TranslateTransform(0, 8); HomeLayer.RenderTransform = tt; }
+            tt.BeginAnimation(TranslateTransform.YProperty,
+                new DoubleAnimation(8, 0, TimeSpan.FromMilliseconds(260)) { EasingFunction = ease });
+            HomeLayer.BeginAnimation(OpacityProperty,
+                new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(260)) { EasingFunction = ease });
+        }
+
+        /// <summary>首页淡出（进入子页面时）。</summary>
+        private void AnimateHomeOut()
+        {
+            if (HomeLayer == null) return;
+            if (!SystemParameters.ClientAreaAnimation)
+            {
+                HomeLayer.Visibility = Visibility.Collapsed;
+                HomeLayer.Opacity = 1;
+                return;
+            }
+
+            var fade = new DoubleAnimation(HomeLayer.Opacity <= 0.01 ? 1 : HomeLayer.Opacity, 0, TimeSpan.FromMilliseconds(140))
+            { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn } };
+            fade.Completed += (s, e) =>
+            {
+                if (_currentTabIndex != 0 && HomeLayer != null)
+                {
+                    HomeLayer.Visibility = Visibility.Collapsed;
+                    HomeLayer.Opacity = 1;
+                }
+            };
+            HomeLayer.BeginAnimation(OpacityProperty, fade);
+        }
+
         // ========== Tab 切换 ==========
         private void TabButton_Click(object sender, RoutedEventArgs e)
         {
@@ -2976,10 +3123,9 @@ namespace SnakeLauncherWPF
             if (btn == null) return;
             int index = 0;
             if (btn == BtnTabLaunch) index = 0;
-            else if (btn == BtnTabDownload) index = 1;
-            else if (btn == BtnTabStats) index = 2;
-            else if (btn == BtnTabSettings) index = 3;
-            else if (btn == BtnTabAbout) index = 4;
+            else if (btn == BtnTabStats) index = 1;
+            else if (btn == BtnTabSettings) index = 2;
+            else if (btn == BtnTabAbout) index = 3;
             SelectTab(index);
         }
 
@@ -2998,28 +3144,58 @@ namespace SnakeLauncherWPF
                 HideLibrary();
                 CloseReleaseNotesPanel();
 
+                int previous = _currentTabIndex;
+                _currentTabIndex = index;
                 bool home = index == 0;
 
                 BtnTabLaunch.Tag = index == 0 ? "Selected" : "Unselected";
-                BtnTabDownload.Tag = index == 1 ? "Selected" : "Unselected";
-                BtnTabStats.Tag = index == 2 ? "Selected" : "Unselected";
-                BtnTabSettings.Tag = index == 3 ? "Selected" : "Unselected";
-                BtnTabAbout.Tag = index == 4 ? "Selected" : "Unselected";
+                BtnTabStats.Tag = index == 1 ? "Selected" : "Unselected";
+                BtnTabSettings.Tag = index == 2 ? "Selected" : "Unselected";
+                BtnTabAbout.Tag = index == 3 ? "Selected" : "Unselected";
 
-                // 首页主视觉 / 子页面 二选一
-                HomeLayer.Visibility = home ? Visibility.Visible : Visibility.Collapsed;
-                PagesLayer.Visibility = home ? Visibility.Collapsed : Visibility.Visible;
-
-                ContentGrid.Children.Clear();
-                if (!home)
+                if (home)
                 {
+                    // 子页面 → 首页：页面淡出，首页淡入
+                    if (PagesLayer.Visibility == Visibility.Visible)
+                        AnimatePagesOut();
+
+                    if (HomeLayer.Visibility != Visibility.Visible)
+                        HomeLayer.Visibility = Visibility.Visible;
+                    AnimateHomeIn();
+                    UpdateHomePage();
+                }
+                else
+                {
+                    // 首页 → 子页面：首页淡出，页面淡入
+                    if (previous == 0 && HomeLayer.Visibility == Visibility.Visible)
+                        AnimateHomeOut();
+
+                    PagesLayer.Visibility = Visibility.Visible;
+                    if (previous <= 0)
+                        AnimatePagesIn();
+                    else if (!SystemParameters.ClientAreaAnimation)
+                        PagesLayer.Opacity = 1;
+
+                    UIElement newPage = null;
                     switch (index)
                     {
-                        case 1: ContentGrid.Children.Add(CreateDownloadPage()); break;
-                        case 2: ContentGrid.Children.Add(CreateStatsPage()); break;
-                        case 3: ContentGrid.Children.Add(CreateSettingsPage()); break;
-                        case 4: ContentGrid.Children.Add(CreateAboutPage()); break;
+                        case 1: newPage = CreateStatsPage(); break;
+                        case 2: newPage = CreateSettingsPage(); break;
+                        case 3: newPage = CreateAboutPage(); break;
                     }
+
+                    if (newPage != null)
+                    {
+                        // 子页面之间切换：旧页面淡出、新页面淡入
+                        UIElement oldPage = ContentGrid.Children.Count > 0 ? ContentGrid.Children[0] : null;
+                        var fe = newPage as FrameworkElement;
+                        if (fe != null) fe.Opacity = 0;
+                        ContentGrid.Children.Add(newPage);
+                        AnimatePageIn(fe);
+                        if (oldPage != null)
+                            FadeOutAndRemove(oldPage);
+                    }
+
                     UpdatePageChrome(index);
                 }
 
@@ -3032,11 +3208,6 @@ namespace SnakeLauncherWPF
                         new ThicknessAnimation(new Thickness(6, top, 0, 0), TimeSpan.FromMilliseconds(260))
                         { EasingFunction = ease });
                 }
-
-                if (home)
-                    UpdateHomePage();
-                else
-                    AnimatePageIn();
             }
             catch (Exception ex)
             {
@@ -3046,7 +3217,7 @@ namespace SnakeLauncherWPF
 
         // ========== ★ 鹰角式首页 / 版本库 ==========
 
-        /// <summary>页面头与设置导航状态（下载 / 数据 / 设置 / 关于）。</summary>
+        /// <summary>页面头与设置导航状态（数据 / 设置 / 关于）。</summary>
         private void UpdatePageChrome(int index)
         {
             try
@@ -3055,10 +3226,9 @@ namespace SnakeLauncherWPF
                 string kicker;
                 switch (index)
                 {
-                    case 1: title = Lang.T("Tab.Download"); kicker = "DOWNLOAD CENTER"; break;
-                    case 2: title = Lang.T("Tab.Stats"); kicker = "PLAYER DATA"; break;
-                    case 3: title = Lang.T("Tab.Settings"); kicker = "SETTINGS"; break;
-                    case 4: title = Lang.T("Tab.About"); kicker = "ABOUT"; break;
+                    case 1: title = Lang.T("Tab.Stats"); kicker = "PLAYER DATA"; break;
+                    case 2: title = Lang.T("Tab.Settings"); kicker = "SETTINGS"; break;
+                    case 3: title = Lang.T("Tab.About"); kicker = "ABOUT"; break;
                     default: title = Lang.T("Tab.Launch"); kicker = "SNAKE LAUNCHER"; break;
                 }
 
@@ -3066,15 +3236,15 @@ namespace SnakeLauncherWPF
                 if (TxtPageKicker != null) TxtPageKicker.Text = kicker;
 
                 // 设置 / 关于：显示鹰角式左侧导航（启动器设置 / 关于）
-                bool settingsLike = index == 3 || index == 4;
+                bool settingsLike = index == 2 || index == 3;
                 if (SettingsNav != null)
                     SettingsNav.Visibility = settingsLike ? Visibility.Visible : Visibility.Collapsed;
                 if (BtnNavLauncher != null)
-                    BtnNavLauncher.Tag = index == 3 ? "Selected" : "Unselected";
+                    BtnNavLauncher.Tag = index == 2 ? "Selected" : "Unselected";
                 if (BtnNavAbout != null)
-                    BtnNavAbout.Tag = index == 4 ? "Selected" : "Unselected";
+                    BtnNavAbout.Tag = index == 3 ? "Selected" : "Unselected";
                 if (TxtSettingsVersion != null)
-                    TxtSettingsVersion.Text = "v" + UpdateService.GetCurrentVersion().ToString(3);
+                    TxtSettingsVersion.Text = "v" + UpdateService.GetCurrentVersion().ToString();
             }
             catch { }
         }
@@ -3114,12 +3284,13 @@ namespace SnakeLauncherWPF
                    ?? _gameFiles.OrderByDescending(g => g.Version).FirstOrDefault();
         }
 
-        /// <summary>刷新首页主视觉（版本号、开始按钮、版本资讯、公告）。</summary>
+        /// <summary>刷新首页主视觉（版本号、开始按钮、更新状态、版本资讯、公告）。</summary>
         private void UpdateHomePage()
         {
             if (TxtStartGame == null || TxtHomeVersion == null) return;
 
             var active = GetActiveGame();
+            RefreshGameUpdateState(active);
             bool has = active != null;
             string ver = has ? FormatGameVersion(active) : "--";
 
@@ -3127,20 +3298,159 @@ namespace SnakeLauncherWPF
                 ? string.Format(Lang.T("Home.CurrentVersion"), VersionLabel(ver))
                 : Lang.T("Home.NotInstalled");
             if (HomeStatusDot != null)
-                HomeStatusDot.Fill = has ? SafeFindBrush("PositiveBrush") : SafeFindBrush("ShellTextFaintBrush");
-            if (TxtHomeLatest != null) TxtHomeLatest.Text = has ? Lang.T("Home.Latest") : Lang.T("Home.Downloadable");
-            TxtStartGame.Text = has ? Lang.T("Home.StartGame") : Lang.T("Home.DownloadGame");
-            if (TxtStartVersion != null)
-                TxtStartVersion.Text = has ? VersionLabel(ver) : Lang.T("Home.DownloadForArch", GetArchDisplayName());
-            if (TxtHomeStatus != null)
-                TxtHomeStatus.Text = has ? Lang.T("Home.Ready") : Lang.T("Home.DownloadReady");
+                HomeStatusDot.Fill = _gameUpdateAvailable
+                    ? SafeFindBrush("AccentBrush")
+                    : (has ? SafeFindBrush("PositiveBrush") : SafeFindBrush("ShellTextFaintBrush"));
+            if (TxtHomeLatest != null)
+                TxtHomeLatest.Text = has
+                    ? (_gameUpdateAvailable ? Lang.T("Home.NewVersion") : Lang.T("Home.Latest"))
+                    : Lang.T("Home.Downloadable");
+
+            if (_isGameRunning)
+            {
+                TxtStartGame.Text = Lang.T("Home.GameRunning");
+                if (TxtStartVersion != null) TxtStartVersion.Text = has ? VersionLabel(ver) : "SnakeGame";
+                if (TxtHomeStatus != null) TxtHomeStatus.Text = Lang.T("Home.GameRunning");
+            }
+            else if (_gameUpdateAvailable)
+            {
+                TxtStartGame.Text = Lang.T("Home.UpdateGame");
+                if (TxtStartVersion != null)
+                    TxtStartVersion.Text = _latestGameRelease != null
+                        ? VersionLabel(ver) + "  →  " + _latestGameRelease.TagName
+                        : VersionLabel(ver);
+                if (TxtHomeStatus != null)
+                    TxtHomeStatus.Text = Lang.T("Home.UpdateAvailable", _latestGameRelease?.TagName ?? "");
+            }
+            else
+            {
+                TxtStartGame.Text = has ? Lang.T("Home.StartGame") : Lang.T("Home.DownloadGame");
+                if (TxtStartVersion != null)
+                    TxtStartVersion.Text = has ? VersionLabel(ver) : Lang.T("Home.DownloadForArch", GetArchDisplayName());
+                if (TxtHomeStatus != null)
+                    TxtHomeStatus.Text = has ? Lang.T("Home.Ready") : Lang.T("Home.DownloadReady");
+            }
+
             if (TxtPromoTitle != null) TxtPromoTitle.Text = has ? Lang.T("Home.PromoTitle") : Lang.T("Home.DownloadGame");
             if (TxtPromoDesc != null) TxtPromoDesc.Text = has ? (ver + " · " + Lang.T("Home.Installed")) : Lang.T("Home.DownloadForArch", GetArchDisplayName());
-            // 没有游戏时按钮反而要可点：点击即自动下载安装最新版
-            if (BtnStartGame != null) BtnStartGame.IsEnabled = !_autoDownloadBusy;
+
+            if (BtnStartGame != null)
+            {
+                BtnStartGame.IsEnabled = !_autoDownloadBusy && !_isGameRunning;
+                if (!_isGameRunning)
+                {
+                    BtnStartGame.ToolTip = _gameUpdateAvailable
+                        ? Lang.T("Home.UpdateHint", _latestGameRelease?.TagName ?? "")
+                        : Lang.T("Home.StartGame");
+                }
+            }
 
             UpdateHomePromo();
             UpdateAnnouncements();
+        }
+
+        /// <summary>根据已安装游戏与 Release 列表，计算是否存在游戏更新。</summary>
+        private void RefreshGameUpdateState(GameFileInfo active)
+        {
+            _latestGameRelease = null;
+            _latestGameAsset = null;
+            _latestGameVersion = null;
+            _gameUpdateAvailable = false;
+
+            if (active?.Version == null || active.Version.Major == 9999) return;
+            if (_releaseFeed == null || _releaseFeed.Count == 0) return;
+
+            try
+            {
+                string arch = GetPreferredArchitecture();
+                var matching = _releaseFeed
+                    .Where(r => r != null && r.RepoConfig != null && r.RepoConfig.IsPythonRepo == active.IsPython)
+                    .OrderByDescending(r => r.ParsedVersion ?? new Version(0, 0, 0))
+                    .ThenByDescending(r => r.PublishedAt)
+                    .ToList();
+
+                foreach (var rel in matching)
+                {
+                    var asset = GitHubReleaseService.PickBestAsset(rel.Assets, arch, "windows");
+                    if (asset == null) continue;
+
+                    var latest = asset.ParsedVersion ?? rel.ParsedVersion;
+                    if (latest == null) continue;
+
+                    if (latest > active.Version)
+                    {
+                        _latestGameRelease = rel;
+                        _latestGameAsset = asset;
+                        _latestGameVersion = latest;
+                        _gameUpdateAvailable = true;
+                    }
+                    break;
+                }
+            }
+            catch { }
+        }
+
+        /// <summary>
+        /// 游戏运行状态：开始按钮变灰并显示"正在游戏"，游戏退出后恢复。
+        /// </summary>
+        private void SetGameRunning(bool running)
+        {
+            if (_isGameRunning == running) return;
+            _isGameRunning = running;
+
+            try
+            {
+                bool animate = SystemParameters.ClientAreaAnimation;
+
+                if (StartPillGreyOverlay != null)
+                {
+                    StartPillGreyOverlay.BeginAnimation(OpacityProperty, null);
+
+                    if (running)
+                    {
+                        StartPillGreyOverlay.Visibility = Visibility.Visible;
+                        if (animate)
+                        {
+                            StartPillGreyOverlay.Opacity = 0;
+                            StartPillGreyOverlay.BeginAnimation(OpacityProperty,
+                                new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(200))
+                                { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
+                        }
+                        else
+                        {
+                            StartPillGreyOverlay.Opacity = 1;
+                        }
+                    }
+                    else
+                    {
+                        if (animate && StartPillGreyOverlay.Opacity > 0.01)
+                        {
+                            var fade = new DoubleAnimation(StartPillGreyOverlay.Opacity, 0, TimeSpan.FromMilliseconds(180))
+                            { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn } };
+                            fade.Completed += (s, e) =>
+                            {
+                                if (!_isGameRunning && StartPillGreyOverlay != null)
+                                    StartPillGreyOverlay.Visibility = Visibility.Collapsed;
+                            };
+                            StartPillGreyOverlay.BeginAnimation(OpacityProperty, fade);
+                        }
+                        else
+                        {
+                            StartPillGreyOverlay.Opacity = 0;
+                            StartPillGreyOverlay.Visibility = Visibility.Collapsed;
+                        }
+                    }
+                }
+
+                if (BtnStartGame != null)
+                {
+                    BtnStartGame.IsEnabled = !running && !_autoDownloadBusy;
+                    BtnStartGame.ToolTip = running ? Lang.T("Home.GameRunningHint") : Lang.T("Home.StartGame");
+                }
+
+                UpdateHomePage();
+            }
+            catch { }
         }
 
         // ==================== ★ 自定义启动器背景（图片 / 视频） ====================
@@ -3349,7 +3659,7 @@ namespace SnakeLauncherWPF
             ApplyCustomBackground(notify: true);
 
             // 设置页正在显示时重建，以刷新"当前背景"描述
-            if (GetCurrentTabIndex() == 3) SelectTab(3);
+            if (GetCurrentTabIndex() == 2) SelectTab(2);
         }
 
         private string GetBackgroundDescription()
@@ -3674,6 +3984,9 @@ namespace SnakeLauncherWPF
             UpdateHomePromo();
             UpdateAnnouncements();
             if (_releaseNotesOverlay != null) PopulateReleaseNotesList(_releaseNotesCurrent);
+
+            // ★ Release 列表更新后重新判断游戏是否有新版本
+            UpdateHomePage();
         }
 
         // ==================== ★ 版本资讯与更新说明面板 ====================
@@ -4091,18 +4404,147 @@ namespace SnakeLauncherWPF
 
         private async void BtnStartGame_Click(object sender, RoutedEventArgs e)
         {
+            if (_isGameRunning || _autoDownloadBusy) return;
+
             var active = GetActiveGame();
-            if (active == null)
+            RefreshGameUpdateState(active);
+            if (active == null || _gameUpdateAvailable)
             {
-                // 未检测到游戏：按钮变为"下载游戏"，点击自动下载安装最新发布版
-                await DownloadAndInstallLatestGameAsync();
+                // 未安装游戏：下载；已安装但检测到新版本：更新
+                await DownloadAndInstallLatestGameAsync(active?.IsPython);
                 return;
             }
             _selectedGame = active;
             await LaunchGame(active.FullPath, active.IsPython);
         }
 
-        private void BtnStartMenu_Click(object sender, RoutedEventArgs e) => ShowLibrary();
+        private void BtnStartMenu_Click(object sender, RoutedEventArgs e) => ShowGameMenu();
+
+        // ==================== 三条杠：游戏操作菜单 ====================
+        private void ShowGameMenu()
+        {
+            var active = GetActiveGame();
+            if (active == null)
+            {
+                ShowNotification(Lang.T("Menu.NoGame"));
+                return;
+            }
+
+            if (GameMenuPopup != null)
+            {
+                GameMenuPopup.PlacementTarget = BtnStartMenu;
+                GameMenuPopup.IsOpen = true;
+            }
+        }
+
+        private void CloseGameMenu()
+        {
+            if (GameMenuPopup != null) GameMenuPopup.IsOpen = false;
+        }
+
+        private void GameMenuSettings_Click(object sender, RoutedEventArgs e)
+        {
+            CloseGameMenu();
+            var game = GetActiveGame();
+            if (game == null) return;
+
+            ShowDetailPanel(Lang.T("Menu.GameSettings"),
+                $"版本: {VersionLabel(FormatGameVersion(game))}\n" +
+                $"路径: {game.FullPath}\n" +
+                $"类型: {(game.IsPython ? "Python" : "C# / Unity")}\n\n" +
+                "如需修改游戏内画面、音量等设置，请启动游戏后在游戏设置中调整。");
+        }
+
+        private void GameMenuShortcut_Click(object sender, RoutedEventArgs e)
+        {
+            CloseGameMenu();
+            var game = GetActiveGame();
+            if (game == null) return;
+
+            try
+            {
+                string desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+                string shortcutPath = Path.Combine(desktop,
+                    $"SnakeGame - {FormatGameVersion(game)}.lnk");
+
+                Type shellType = Type.GetTypeFromProgID("WScript.Shell");
+                if (shellType == null) throw new InvalidOperationException("WScript.Shell 不可用");
+
+                dynamic shell = Activator.CreateInstance(shellType);
+                dynamic shortcut = shell.CreateShortcut(shortcutPath);
+                shortcut.TargetPath = game.FullPath;
+                shortcut.WorkingDirectory = Path.GetDirectoryName(game.FullPath);
+                shortcut.Description = "SnakeGame";
+                shortcut.Save();
+
+                ShowNotification(Lang.T("Menu.ShortcutDone"));
+            }
+            catch (Exception ex)
+            {
+                ShowNotification(Lang.T("Menu.ShortcutFailed", ex.Message));
+            }
+        }
+
+        private void GameMenuVerify_Click(object sender, RoutedEventArgs e)
+        {
+            CloseGameMenu();
+            var game = GetActiveGame();
+            if (game == null) return;
+
+            try
+            {
+                if (!File.Exists(game.FullPath))
+                {
+                    ShowDetailPanel(Lang.T("Menu.VerifyGame"), Lang.T("Menu.VerifyFailed", "文件不存在"));
+                    return;
+                }
+
+                var fi = new FileInfo(game.FullPath);
+                string hash;
+                using (var sha = System.Security.Cryptography.SHA256.Create())
+                using (var fs = File.OpenRead(game.FullPath))
+                    hash = BitConverter.ToString(sha.ComputeHash(fs)).Replace("-", "");
+
+                string tamper = AntiCheat.VerifyGameExe(game.FullPath);
+                string text = $"文件: {fi.Name}\n" +
+                              $"大小: {(fi.Length / 1024.0):N1} KB\n" +
+                              $"修改时间: {fi.LastWriteTime:yyyy-MM-dd HH:mm}\n" +
+                              $"SHA256: {hash}\n\n" +
+                              (tamper == null ? Lang.T("Menu.VerifyOk") : Lang.T("Menu.VerifyFailed", tamper));
+
+                ShowDetailPanel(Lang.T("Menu.VerifyGame"), text);
+            }
+            catch (Exception ex)
+            {
+                ShowDetailPanel(Lang.T("Menu.VerifyGame"), Lang.T("Menu.VerifyFailed", ex.Message));
+            }
+        }
+
+        private void GameMenuClearCache_Click(object sender, RoutedEventArgs e)
+        {
+            CloseGameMenu();
+
+            try
+            {
+                UpdateService.CleanupTempFiles();
+                UpdateService.CleanupUpdaterTempDirs();
+
+                string temp = Path.GetTempPath();
+                foreach (var pattern in new[] { "SnakeLauncherUpdate_*", "SnakeLauncherUpdater_*" })
+                {
+                    foreach (var dir in Directory.GetDirectories(temp, pattern))
+                    {
+                        try { Directory.Delete(dir, true); } catch { }
+                    }
+                }
+
+                ShowNotification(Lang.T("Menu.CacheCleared"));
+            }
+            catch (Exception ex)
+            {
+                ShowNotification(Lang.T("Menu.CacheClearFailed", ex.Message));
+            }
+        }
 
         private void BtnPromoDetail_Click(object sender, RoutedEventArgs e)
         {
@@ -4154,8 +4596,8 @@ namespace SnakeLauncherWPF
         }
 
         private void BtnUtilUpdate_Click(object sender, RoutedEventArgs e) => StartAutoUpdateCheck();
-        private void BtnUtilAbout_Click(object sender, RoutedEventArgs e) => SelectTab(4);
-        private void BtnSettings_Click(object sender, RoutedEventArgs e) => SelectTab(3);
+        private void BtnUtilAbout_Click(object sender, RoutedEventArgs e) => SelectTab(3);
+        private void BtnSettings_Click(object sender, RoutedEventArgs e) => SelectTab(2);
         private void BtnMessages_Click(object sender, RoutedEventArgs e) => ShowNotification(Lang.T("Home.NoMessages"));
 
         private async void BtnAccount_Click(object sender, RoutedEventArgs e)
@@ -4164,8 +4606,8 @@ namespace SnakeLauncherWPF
         }
 
         private void BtnClosePage_Click(object sender, RoutedEventArgs e) => SelectTab(0);
-        private void SettingsNavLauncher_Click(object sender, RoutedEventArgs e) => SelectTab(3);
-        private void SettingsNavAbout_Click(object sender, RoutedEventArgs e) => SelectTab(4);
+        private void SettingsNavLauncher_Click(object sender, RoutedEventArgs e) => SelectTab(2);
+        private void SettingsNavAbout_Click(object sender, RoutedEventArgs e) => SelectTab(3);
         private void BtnCloseLibrary_Click(object sender, RoutedEventArgs e) => HideLibrary();
 
         private void LibraryOverlay_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -4450,6 +4892,7 @@ namespace SnakeLauncherWPF
                             _currentGameProcess.Exited -= OnGameProcessExited;
                             _currentGameProcess.Kill();
                             await Task.Run(() => _currentGameProcess.WaitForExit(3000));
+                            SetGameRunning(false);
                         }
                     }
                     catch { }
@@ -6260,43 +6703,6 @@ namespace SnakeLauncherWPF
                 FontSize = 12
             };
 
-            var autoCheckBox = new CheckBox
-            {
-                Content = Lang.T("Update.AutoCheck"),
-                IsChecked = _config.AutoCheckUpdate,
-                Margin = new Thickness(0, 0, 0, 10),
-                Foreground = SafeFindBrush("ForegroundBrush"),
-                FontSize = 12
-            };
-            autoCheckBox.Checked += (s, e) =>
-            {
-                _config.AutoCheckUpdate = true;
-                ConfigManager.Save(_config);
-                ShowNotification(Lang.T("Update.AutoCheckOn"));
-            };
-            autoCheckBox.Unchecked += (s, e) =>
-            {
-                _config.AutoCheckUpdate = false;
-                ConfigManager.Save(_config);
-                ShowNotification(Lang.T("Update.AutoCheckOff"));
-            };
-
-            var btnClearSkip = new Button
-            {
-                Content = Lang.T("Update.ClearSkip"),
-                Style = SafeFindStyle("RoundedButton"),
-                Width = 150,
-                Height = 32,
-                HorizontalAlignment = HorizontalAlignment.Left,
-                Margin = new Thickness(0, 0, 0, 12)
-            };
-            btnClearSkip.Click += (s, e) =>
-            {
-                _config.SkipUpdateVersion = "";
-                ConfigManager.Save(_config);
-                ShowNotification(Lang.T("Update.ClearSkipDone"));
-            };
-
             var updateStatusText = new TextBlock
             {
                 Text = "",
@@ -6383,70 +6789,14 @@ namespace SnakeLauncherWPF
 
                 updateStatusText.Text = Lang.T("Update.Found", update.LatestVersion);
 
-                string sizeStr = update.FileSize > 0
-                    ? $"{update.FileSize / 1048576.0:F1} MB"
-                    : Lang.T("Download.Size.Unknown");
-
-                var confirm = await ShowConfirmDialogAsync(
-                    Lang.T("Update.Confirm", update.LatestVersion,
-                        string.IsNullOrEmpty(update.ReleaseNotes) ? Lang.T("Download.NoNotes") : update.ReleaseNotes,
-                        sizeStr));
-
-                if (!confirm)
-                {
-                    updateStatusText.Text = Lang.T("Update.Cancelled");
-                    btnCheckUpdate.IsEnabled = true;
-                    btnReleasePage.IsEnabled = true;
-                    return;
-                }
-
-                if (string.IsNullOrEmpty(update.DownloadUrl))
-                {
-                    updateStatusText.Text = Lang.T("Update.NoDownloadUrl");
-                    btnCheckUpdate.IsEnabled = true;
-                    btnReleasePage.IsEnabled = true;
-                    return;
-                }
-
+                // ★ 启动器强制更新：不提供"稍后/跳过"，直接下载并启动更新程序
+                updateProgressBar.Visibility = Visibility.Visible;
                 try
                 {
-                    updateProgressBar.Visibility = Visibility.Visible;
-                    updateStatusText.Text = Lang.T("Update.Downloading");
-
-                    var progress = new Progress<double>(p =>
-                    {
-                        updateProgressBar.Value = p;
-                        updateStatusText.Text = Lang.T("Update.DownloadProgress", p);
-                    });
-
-                    string zipPath = await UpdateService.DownloadUpdateAsync(
-                        update.DownloadUrl, progress, CancellationToken.None);
-
-                    if (!string.IsNullOrEmpty(update.Sha256))
-                    {
-                        updateStatusText.Text = Lang.T("Update.Verifying");
-                        bool ok = await Task.Run(() => UpdateService.VerifySha256(zipPath, update.Sha256));
-                        if (!ok)
-                        {
-                            try { File.Delete(zipPath); } catch { }
-                            updateStatusText.Text = Lang.T("Update.VerifyFailed");
-                            updateProgressBar.Visibility = Visibility.Collapsed;
-                            btnCheckUpdate.IsEnabled = true;
-                            btnReleasePage.IsEnabled = true;
-                            return;
-                        }
-                    }
-
-                    updateStatusText.Text = Lang.T("Update.Launching");
-                    updateProgressBar.Value = 100;
-                    await Task.Delay(600);
-
-                    UpdateService.LaunchUpdater(zipPath);
+                    await RunUpdateFromAutoCheckAsync(update);
                 }
-                catch (Exception ex)
+                finally
                 {
-                    updateStatusText.Text = Lang.T("Update.Failed", ex.Message);
-                    updateProgressBar.Visibility = Visibility.Collapsed;
                     btnCheckUpdate.IsEnabled = true;
                     btnReleasePage.IsEnabled = true;
                 }
@@ -6456,8 +6806,6 @@ namespace SnakeLauncherWPF
             updateBtnPanel.Children.Add(btnReleasePage);
 
             updatePanel.Children.Add(updateInfoText);
-            updatePanel.Children.Add(autoCheckBox);
-            updatePanel.Children.Add(btnClearSkip);
             updatePanel.Children.Add(updateBtnPanel);
             updatePanel.Children.Add(updateProgressBar);
             updatePanel.Children.Add(updateStatusText);
@@ -6617,7 +6965,7 @@ namespace SnakeLauncherWPF
                 HorizontalAlignment = HorizontalAlignment.Center,
             });
 
-            var versionPill = Ui.Pill("v" + UpdateService.GetCurrentVersion().ToString(3));
+            var versionPill = Ui.Pill("v" + UpdateService.GetCurrentVersion().ToString());
             versionPill.HorizontalAlignment = HorizontalAlignment.Center;
             versionPill.Margin = new Thickness(0, 10, 0, 8);
             panel.Children.Add(versionPill);
@@ -6701,20 +7049,17 @@ namespace SnakeLauncherWPF
             catch { }
         }
 
-        // ========== 自动更新 ==========
+        // ========== 自动更新（强制） ==========
         private async void StartAutoUpdateCheck()
         {
-            if (!_config.AutoCheckUpdate) return;
             if (_autoUpdateCheckRunning) return;
-            if ((DateTime.UtcNow - _config.LastUpdateCheck).TotalHours < 6) return;
-
             _autoUpdateCheckRunning = true;
 
             try
             {
-                await Task.Delay(TimeSpan.FromSeconds(5));
-                await Task.Delay(TimeSpan.FromMilliseconds(500));
+                await Task.Delay(TimeSpan.FromSeconds(4));
 
+                // 游戏运行中不打断玩家，退出后再检查
                 if (_currentGameProcess != null && !_currentGameProcess.HasExited) return;
 
                 var update = await UpdateService.CheckForUpdateAsync();
@@ -6723,16 +7068,9 @@ namespace SnakeLauncherWPF
 
                 if (update == null || !update.HasUpdate) return;
 
-                if (!string.IsNullOrEmpty(_config.SkipUpdateVersion)
-                    && _config.SkipUpdateVersion == update.LatestVersion)
-                {
-                    return;
-                }
-
-                if (_autoUpdatePromptShown) return;
-                _autoUpdatePromptShown = true;
-
-                await PromptAutoUpdateAsync(update);
+                // ★ 强制更新：不询问、不允许跳过/稍后，直接下载并启动更新程序
+                ShowNotification(Lang.T("Update.ForcedFound", update.LatestVersion));
+                await RunUpdateFromAutoCheckAsync(update);
             }
             catch (Exception ex)
             {

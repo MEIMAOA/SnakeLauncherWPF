@@ -9,7 +9,7 @@
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-0078D4?style=flat-square&logo=windows)](https://www.microsoft.com/windows)
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/download/dotnet/10.0)
 [![WPF](https://img.shields.io/badge/UI-WPF-68217A?style=flat-square)](https://learn.microsoft.com/dotnet/desktop/wpf/)
-[![Version](https://img.shields.io/badge/version-6.0.0.2-00b7c3?style=flat-square)](https://github.com/MEIMAOA/SnakeLauncherWPF/releases)
+[![Version](https://img.shields.io/badge/version-6.0.1.0-00b7c3?style=flat-square)](https://github.com/MEIMAOA/SnakeLauncherWPF/releases)
 [![License](https://img.shields.io/badge/license-Apache--2.0-00cc6a?style=flat-square)](LICENSE)
 
 [功能特性](#-功能特性) · [截图](#-截图) · [下载](#-下载) · [从源码构建](#-从源码构建) · [更新日志](#-更新日志)
@@ -84,9 +84,9 @@
 
 前往 **[Releases](https://github.com/MEIMAOA/SnakeLauncherWPF/releases)** 下载最新版本（按系统架构选择）：
 
-- `SnakeLauncherWPF_6.0.0.2-Windows64.zip` — Windows x64
-- `SnakeLauncherWPF_6.0.0.2-Windows32.zip` — Windows x86（32 位）
-- `SnakeLauncherWPF_6.0.0.2-WindowsARM64.zip` — Windows on ARM（ARM64）
+- `SnakeLauncherWPF_6.0.1.0-Windows64.zip` — Windows x64
+- `SnakeLauncherWPF_6.0.1.0-Windows32.zip` — Windows x86（32 位）
+- `SnakeLauncherWPF_6.0.1.0-WindowsARM64.zip` — Windows on ARM（ARM64）
 
 压缩包内已包含 **`SnakeLauncherWPF.Updater.exe`**（自更新程序）及其依赖文件（`SnakeLauncherWPF.Updater.dll / .deps.json / .runtimeconfig.json`），可在启动器内检查更新并自主完成替换升级。
 
@@ -130,6 +130,15 @@ dotnet publish SnakeLauncherWPF.Updater/SnakeLauncherWPF.Updater.csproj -c Relea
 ---
 
 ## 🔄 更新日志
+
+### v6.0.1.0（2026-10-24）
+
+- **自动检测游戏更新**：获取到最新版本后，首页按钮自动变为「更新游戏」，副标题显示旧版本 → 新版本，点击直接安装该版本（支持预发布）；
+- **三条杠游戏菜单**：游戏设置、添加桌面快捷方式、游戏完整性检查、清理下载缓存；
+- **移除下载页**：左侧导航精简为「启动 / 数据 / 设置 / 关于」，下载与更新统一合并到首页按钮；
+- **启动器强制更新**：启动后自动检查启动器更新，检测到新版本直接下载安装，不再提供「稍后 / 跳过此版本 / 自动检查开关」；
+- **Updater UI 优化**：品牌图标、更大进度条、失败提示、可拖动窗口；
+- 版本号更新至 **6.0.1.0**（启动器 + Updater）。
 
 ### v6.0.0.2（2026-10-24）— 修复自更新失败
 
